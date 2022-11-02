@@ -11,8 +11,9 @@ const {
 } = require("./service/auth.service");
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users-router");
-const uploadRouter = require("./routes/upload-router");
-const { loginRequired } = require("./middleware/auth-jwt");
+const filesRouter = require("./routes/files-router");
+
+const { errorHandler } = require("./middleware/error-handler");
 var app = express();
 
 const db = require("./db");
@@ -30,24 +31,8 @@ passportConfiguration();
 JWTConfiguration();
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-app.use("/upload", loginRequired, uploadRouter);
-
-// catch 404 and forward to error handler
-// app.use(function (req, res, next) {
-//   next(createError(404));
-// });
-
-// error handler
-app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.json({
-    err,
-  });
-});
+// app.use("/files", loginRequired, filesRouter);
+app.use("/files", filesRouter);
+app.use(errorHandler);
 
 module.exports = app;
