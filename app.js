@@ -10,9 +10,9 @@ const {
   JWTConfiguration,
 } = require("./service/auth.service");
 var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
+var usersRouter = require("./routes/users-router");
 const uploadRouter = require("./routes/upload-router");
-
+const { loginRequired } = require("./middleware/auth-jwt");
 var app = express();
 
 const db = require("./db");
@@ -30,7 +30,7 @@ passportConfiguration();
 JWTConfiguration();
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-app.use("/upload", uploadRouter);
+app.use("/upload", loginRequired, uploadRouter);
 
 // catch 404 and forward to error handler
 // app.use(function (req, res, next) {
@@ -46,7 +46,7 @@ app.use(function (err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.json({
-    error: err.message,
+    err,
   });
 });
 
