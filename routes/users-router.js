@@ -4,14 +4,15 @@ const jwt = require("jsonwebtoken");
 const { userService } = require("../service/user.service");
 const userRouter = express.Router();
 
-userRouter.post("/hi", async (req, res, next) => {
-  console.log("he");
-  res.send("this works");
-});
+//우선 거의 안쓰니까 register는 이정도로 두고...
 userRouter.post("/register", async (req, res, next) => {
-  const { body } = req;
-  const newUser = await userService.createNewUser({ ...body });
-  res.json({ user: newUser });
+  try {
+    const { body } = req;
+    const newUser = await userService.createNewUser({ ...body });
+    res.json({ user: newUser });
+  } catch (error) {
+    next(error);
+  }
 });
 userRouter.post("/login", async (req, res, next) => {
   try {
