@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const storage = multer.diskStorage({
   destination: "uploads/",
   filename: function (req, file, callback) {
+    console.log(file);
     const { originalname } = file;
     const newObjectId = new mongoose.Types.ObjectId();
     const newName = originalname + "-" + newObjectId;

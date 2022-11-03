@@ -14,7 +14,7 @@ class FileService {
   }
   async saveFile(fileInfo) {
     const { originalname, password, mimetype, filename, path } = fileInfo;
-    const originalName = iconvLite.decode(originalname, "euc-kr");
+    const originalName = iconvLite.decode(originalname, "UTF-8");
     const id = filename.slice(-24);
     const salt = 10;
     const hashedPassword = await bcrypt.hash(password, salt);
