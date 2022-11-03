@@ -1,5 +1,6 @@
 var createError = require("http-errors");
 var express = require("express");
+const cors = require("cors");
 const passport = require("passport");
 var path = require("path");
 var cookieParser = require("cookie-parser");
@@ -22,6 +23,7 @@ const db = require("./db");
 db();
 
 app.use(logger("dev"));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

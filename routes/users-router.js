@@ -2,8 +2,14 @@ const express = require("express");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const { userService } = require("../service/user.service");
+const { loginRequired } = require("../middleware/auth-jwt");
 const userRouter = express.Router();
 
+userRouter.get("/auth", loginRequired, (req, res, next) => {
+  const { user } = req;
+  console.log(user);
+  res.json({ user });
+});
 //우선 거의 안쓰니까 register는 이정도로 두고...
 userRouter.post("/register", async (req, res, next) => {
   try {
@@ -19,12 +25,13 @@ userRouter.post("/login", async (req, res, next) => {
     passport.authenticate("local", { session: false }, (error, user, info) => {
       // 성공적으로 유저가 있어야 유저 객체가 생기고,
       //유저 인증 실패시 유저는 자동으로 false;
-
+      console.log("user", user);
       if (error || !user) {
         // passport 인증 실패 or 유저가 없으면 error
         console.log("error", error);
         res.status(400).json({
-          error: error,
+          result: "error",
+          reason: "Incorrect ID or Password",
         });
         return;
       }
