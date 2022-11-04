@@ -14,8 +14,9 @@ class FileService {
   }
   async saveFile(fileInfo) {
     const { originalname, password, mimetype, filename, path } = fileInfo;
+    //decode korean names back to korean when upload
     const originalName = iconvLite.decode(originalname, "UTF-8");
-    const id = filename.slice(-24);
+    const id = filename.slice(0, 24);
     const salt = 10;
     const hashedPassword = await bcrypt.hash(password, salt);
     const newFileInfo = {
@@ -25,17 +26,8 @@ class FileService {
       password: hashedPassword,
       mimeType: mimetype,
     };
-    console.log(newFileInfo);
     const savedFile = await this.fileModel.createFile(newFileInfo);
-    console.log(savedFile);
     return savedFile;
-  }
-  convertDownloadFileName(fileName) {
-    const convertedFileName = iconvLite.decode(
-      iconvLite.encode(fileName, "UTF-8"),
-      "ISO-8859-1"
-    );
-    return convertedFileName;
   }
 }
 const fileService = new FileService(fileModel);
