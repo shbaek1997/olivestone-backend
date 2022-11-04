@@ -31,7 +31,7 @@ userRouter.post("/login", async (req, res, next) => {
         console.log("error", error);
         res.status(400).json({
           result: "error",
-          reason: "Incorrect ID or Password",
+          reason: "username이나 비밀번호가 틀렸습니다.",
         });
         return;
       }
