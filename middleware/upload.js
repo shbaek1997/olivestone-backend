@@ -1,12 +1,14 @@
 const multer = require("multer");
 const mongoose = require("mongoose");
+const iconvLite = require("iconv-lite");
 const storage = multer.diskStorage({
   destination: "uploads/",
   filename: function (req, file, callback) {
-    console.log(file);
     const { originalname } = file;
+    const decodedOriginalName = iconvLite.decode(originalname, "UTF-8");
     const newObjectId = new mongoose.Types.ObjectId();
-    const newName = originalname + "-" + newObjectId;
+    const newName = newObjectId + "-" + decodedOriginalName;
+    console.log("new name", newName);
     //use some id feature here
     callback(null, newName);
   },
