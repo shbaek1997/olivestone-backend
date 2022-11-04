@@ -20,19 +20,16 @@ filesRouter.post(
       if (!file) {
         throw new Error("첨부된 파일이 없습니다.");
       }
-      const { password } = req.body;
+      const { password, passwordRepeat } = req.body;
+      //이부분에서 파일을 지우던지 아니면 파일 업로드가 나중에 되게 하던지 해야겠다..
       if (password.length < 8) {
         throw new Error("파일 비밀번호는 최소 8글자이어야 합니다.");
       }
+      if (password !== passwordRepeat) {
+        throw new Error("파일 비밀번호와 비밀번호 확인이 일치 하지 않습니다.");
+      }
       const { originalname, mimetype, path, filename } = file;
-      const decode_1 = iconvLite.decode(originalname, "UTF-8");
-      const decode_2 = iconvLite.decode(originalname, "ISO-8859-1");
-      const decode_3 = iconvLite.decode(
-        iconvLite.encode(originalname, "UTF-8"),
-        "ISO-8859-1"
-      );
 
-      console.log("decreypted", decode_1);
       const fileInfo = { originalname, password, mimetype, filename, path };
       const savedFile = await fileService.saveFile(fileInfo);
 
@@ -61,13 +58,9 @@ filesRouter.post("/download/", async (req, res, next) => {
     }
     const absolutePath = pathModule.join(__dirname, "../", path);
     const fileName = pathModule.basename(absolutePath);
-    const convertedFileName = fileService.convertDownloadFileName(fileName);
-    res.setHeader(
-      "Content-disposition",
-      "attachment; filename=" + convertedFileName
-    );
+    const newFileName = encodeURI(fileName);
+    res.setHeader("Content-Disposition", "attachment;filename=" + newFileName);
     res.setHeader("Content-type", mimeType);
-    const header = req.headers["user-agent"];
     const filestream = fs.createReadStream(absolutePath);
     filestream.pipe(res);
   } catch (error) {
@@ -75,5 +68,7 @@ filesRouter.post("/download/", async (req, res, next) => {
     next(error);
   }
 });
+//curl command
+//curl -X POST http://localhost:5000/files/download -H "Content-Type: application/json" -d '{"fileId":"63646c62e8b26cfc8adbdd40","plainPassword":"12345678"}' --output filename
 
 module.exports = filesRouter;
