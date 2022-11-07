@@ -1,4 +1,4 @@
-# **Project Upload and Download Olivestone Lab**
+# **Project Upload and Download Olivestone Lab (Server)**
 
 ## 서비스 소개
 
@@ -6,7 +6,7 @@
 
 - 이러한 서비스의 Backend 서버 Repository
 - 브라우저에서 뿐만 아니라, POST 요청으로 터미널에서도 파일 다운로드 가능
-- 클라이언트 Repository는 이 [링크]()를 참조
+- 클라이언트 Repository는 이 [링크](http://swrnd.olivestonelab.com:32790/shbaek1997/project-upload-download/-/blob/develop/README.md)를 참조
 
 ## 서비스 설명
 
