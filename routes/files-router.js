@@ -6,7 +6,7 @@ const fs = require("fs");
 const upload = require("../middleware/upload");
 const { fileService } = require("../service/file.service");
 const { loginRequired } = require("../middleware/auth-jwt");
-const iconvLite = require("iconv-lite");
+
 //post 요청의 key값이 single() 안의 문자열이어여 하고, 이 때 DB에 저장해야함..
 filesRouter.post(
   "/upload",
@@ -14,20 +14,13 @@ filesRouter.post(
   upload.single("file"),
   async (req, res, next) => {
     try {
-      //실험을 하면서 upload 미들웨어가 성공하지 않으면 어떻게 되는지 확인해야겠다...
+      //실험을 하면서 upload 미들웨어가 비밀번호 확인 부분을 다시 해야함..
       console.log("hello");
       const { file } = req;
       if (!file) {
         throw new Error("첨부된 파일이 없습니다.");
       }
-      const { password, passwordRepeat } = req.body;
-      //이부분에서 파일을 지우던지 아니면 파일 업로드가 나중에 되게 하던지 해야겠다..
-      if (password.length < 8) {
-        throw new Error("파일 비밀번호는 최소 8글자이어야 합니다.");
-      }
-      if (password !== passwordRepeat) {
-        throw new Error("파일 비밀번호와 비밀번호 확인이 일치 하지 않습니다.");
-      }
+      const { password } = req.body;
       const { originalname, mimetype, path, filename } = file;
 
       const fileInfo = { originalname, password, mimetype, filename, path };
