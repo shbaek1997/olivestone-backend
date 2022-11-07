@@ -15,7 +15,6 @@ filesRouter.post(
   async (req, res, next) => {
     try {
       //실험을 하면서 upload 미들웨어가 비밀번호 확인 부분을 다시 해야함..
-      console.log("hello");
       const { file } = req;
       if (!file) {
         throw new Error("첨부된 파일이 없습니다.");
@@ -62,6 +61,6 @@ filesRouter.post("/download/", async (req, res, next) => {
   }
 });
 //curl command
-//curl -X POST http://localhost:5000/files/download -H "Content-Type: application/json" -d '{"fileId":"63646c62e8b26cfc8adbdd40","plainPassword":"12345678"}' --output filename
+//curl -X POST http://localhost:5000/files/download -H "Content-Type: application/json" -d '{"fileId":"6368a6baeaefbec486e1c0e2","plainPassword":"12345678"}' --output filename
 
 module.exports = filesRouter;

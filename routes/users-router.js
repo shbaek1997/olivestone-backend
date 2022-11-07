@@ -29,9 +29,10 @@ userRouter.post("/login", async (req, res, next) => {
       if (error || !user) {
         // passport 인증 실패 or 유저가 없으면 error
         console.log("error", error);
+        const { message } = info;
         res.status(400).json({
           result: "error",
-          reason: "username이나 비밀번호가 틀렸습니다.",
+          reason: message,
         });
         return;
       }
