@@ -11,7 +11,6 @@ class FileService {
   }
   async getFileById(fileId) {
     const fileFound = await this.fileModel.findById(fileId);
-    //비밀번호 부분 추가?
     return fileFound;
   }
   async saveFile(fileInfo) {
@@ -36,8 +35,7 @@ class FileService {
   async deleteFile(fileId) {
     const fileFound = await this.getFileById(fileId);
     const { path } = fileFound;
-    console.log("path", path);
-    fs.unlink(`${path}`, (err) => {
+    fs.unlink(path, (err) => {
       console.log(err);
     });
   }
@@ -49,8 +47,10 @@ class FileService {
     }
     const { createdAt, validPeriod } = fileFound;
     const timeDifference = (now - createdAt) / 1000; //in sec
-    const validTimeInMinToSec = validPeriod * 60; //change to days later
+    const validTimeInMinToSec = validPeriod * 60;
     const isExpired = timeDifference >= validTimeInMinToSec;
+    // const validTimeInDayToSec = validPeriod * 60*60*24;
+    // const isExpired = timeDifference >= validTimeInDayToSec;
     return isExpired;
   }
   checkFiles() {

@@ -1,4 +1,3 @@
-// import { UserModel } from "../db/model/user.model";
 const UserModel = require("../db/model/user.model");
 const bcrypt = require("bcrypt");
 const userModel = new UserModel();

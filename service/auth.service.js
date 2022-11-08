@@ -1,7 +1,3 @@
-// import passport from "passport";
-// import { Strategy } from "passport-local";
-// import bcrypt from "bcrypt";
-// import { userModel } from "../db";
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");

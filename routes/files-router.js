@@ -79,6 +79,6 @@ filesRouter.post("/download/", async (req, res, next) => {
   }
 });
 //curl command
-//curl -X POST http://localhost:5000/files/download -H "Content-Type: application/json" -d '{"fileId":"6368a6baeaefbec486e1c0e2","plainPassword":"12345678"}' --output filename
+//curl -X POST http://localhost:5000/files/download -H "Content-Type: application/json" -d '{"fileId":"636a08dcac8468e52ce5481f","plainPassword":"12345678"}' --output filename
 
 module.exports = filesRouter;

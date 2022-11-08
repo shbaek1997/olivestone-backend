@@ -23,7 +23,7 @@ const FileSchema = new Schema(
       required: true,
     },
     validPeriod: {
-      type: Number, //in ms?
+      type: Number, //in days
       required: true,
     },
   },
