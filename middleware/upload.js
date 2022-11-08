@@ -16,29 +16,17 @@ const storage = multer.diskStorage({
   },
 });
 
-// const checkFunction = (req, file, callback) => {
-//   console.log("password is...");
-//   console.log(req.body);
-//   const { password, passwordRepeat } = req.body;
-//   let err = undefined;
-//   if (password.length < 8) {
-//     err = { message: "파일 비밀번호는 최소 8글자이어야 합니다." };
-//   } else if (password !== passwordRepeat) {
-//     err = {
-//       message: "파일 비밀번호와 비밀번호 확인이 일치 하지 않습니다.",
-//     };
-//   }
-//   if (!err) {
-//     console.log("it was successful!");
-//     callback(null, true);
-//   } else {
-//     console.log("something in multer happened!");
-//     callback(err, false);
-//   }
-// };
+const checkFunction = (req, file, callback) => {
+  console.log("testing multer again");
+  const { password, passwordRepeat } = req.body;
+  const checkPassword = password.length >= 8 && password === passwordRepeat;
+  req.passwordLengthOk = password.length >= 8;
+  req.passwordRepeatOk = password === passwordRepeat;
+  callback(null, checkPassword);
+};
 const upload = multer({
   storage: storage,
-  // fileFilter: checkFunction,
+  fileFilter: checkFunction,
 });
 
 module.exports = upload;
