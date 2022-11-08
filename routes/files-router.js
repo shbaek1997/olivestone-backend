@@ -50,7 +50,6 @@ filesRouter.post("/download/", async (req, res, next) => {
     //file id could be in body;
     const { fileId, plainPassword } = req.body;
     const fileFound = await fileService.getFileById(fileId);
-    console.log("filefound", fileFound);
     if (!fileFound) {
       throw new Error("해당 아이디를 갖고 있는 파일은 존재하지 않습니다.");
     }

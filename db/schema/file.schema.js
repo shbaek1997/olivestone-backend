@@ -1,3 +1,4 @@
+//Define file schema
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const FileSchema = new Schema(
