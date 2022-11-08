@@ -6,6 +6,8 @@ const fs = require("fs");
 const upload = require("../middleware/upload");
 const { fileService } = require("../service/file.service");
 const { loginRequired } = require("../middleware/auth-jwt");
+const { create } = require("domain");
+const { type } = require("os");
 
 //post 요청의 key값이 single() 안의 문자열이어여 하고, 이 때 DB에 저장해야함..
 filesRouter.post(
@@ -19,10 +21,17 @@ filesRouter.post(
       if (!file) {
         throw new Error("첨부된 파일이 없습니다.");
       }
-      const { password } = req.body;
+      const { password, validPeriod } = req.body;
       const { originalname, mimetype, path, filename } = file;
 
-      const fileInfo = { originalname, password, mimetype, filename, path };
+      const fileInfo = {
+        originalname,
+        password,
+        mimetype,
+        filename,
+        path,
+        validPeriod,
+      };
       const savedFile = await fileService.saveFile(fileInfo);
 
       res.json({
@@ -43,11 +52,22 @@ filesRouter.post("/download/", async (req, res, next) => {
     if (!fileFound) {
       throw new Error("해당 아이디를 갖고 있는 파일은 존재하지 않습니다.");
     }
-    const { path, mimeType, password } = fileFound;
+    const { path, mimeType, password, validPeriod, createdAt } = fileFound;
     const isPasswordCorrect = await bcrypt.compare(plainPassword, password);
     if (!isPasswordCorrect) {
       throw new Error("입력한 비밀번호와 파일의 비밀번호가 일치하지 않습니다.");
     }
+    const now = new Date();
+    const timeDifference = (now - createdAt) / 1000; //in sec
+    const validTimeInMinToSec = validPeriod * 60; //change to days later
+
+    const isExpired = timeDifference >= validTimeInMinToSec;
+    console.log("val", validTimeInMinToSec, "diff", timeDifference);
+    if (isExpired) {
+      throw new Error("파일의 유효기간이 만료되었습니다.");
+    }
+    //valid period => 원래는 day기준인데 우선 min 기준으로 test
+
     const absolutePath = pathModule.join(__dirname, "../", path);
     const fileName = pathModule.basename(absolutePath);
     const newFileName = encodeURI(fileName);

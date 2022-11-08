@@ -22,6 +22,10 @@ const FileSchema = new Schema(
       type: String,
       required: true,
     },
+    validPeriod: {
+      type: Number, //in ms?
+      required: true,
+    },
   },
   {
     collection: "files",

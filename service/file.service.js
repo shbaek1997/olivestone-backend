@@ -13,7 +13,8 @@ class FileService {
     return fileFound;
   }
   async saveFile(fileInfo) {
-    const { originalname, password, mimetype, filename, path } = fileInfo;
+    const { originalname, password, mimetype, filename, path, validPeriod } =
+      fileInfo;
     //decode korean names back to korean when upload
     const originalName = iconvLite.decode(originalname, "UTF-8");
     const id = filename.slice(0, 24);
@@ -25,6 +26,7 @@ class FileService {
       path,
       password: hashedPassword,
       mimeType: mimetype,
+      validPeriod,
     };
     const savedFile = await this.fileModel.createFile(newFileInfo);
     return savedFile;
