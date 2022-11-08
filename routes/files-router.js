@@ -6,8 +6,6 @@ const fs = require("fs");
 const upload = require("../middleware/upload");
 const { fileService } = require("../service/file.service");
 const { loginRequired } = require("../middleware/auth-jwt");
-const { create } = require("domain");
-const { type } = require("os");
 
 //post 요청의 key값이 single() 안의 문자열이어여 하고, 이 때 DB에 저장해야함..
 filesRouter.post(
@@ -57,12 +55,7 @@ filesRouter.post("/download/", async (req, res, next) => {
     if (!isPasswordCorrect) {
       throw new Error("입력한 비밀번호와 파일의 비밀번호가 일치하지 않습니다.");
     }
-    const now = new Date();
-    const timeDifference = (now - createdAt) / 1000; //in sec
-    const validTimeInMinToSec = validPeriod * 60; //change to days later
-
-    const isExpired = timeDifference >= validTimeInMinToSec;
-    console.log("val", validTimeInMinToSec, "diff", timeDifference);
+    const isExpired = await fileService.isExpired(fileId);
     if (isExpired) {
       throw new Error("파일의 유효기간이 만료되었습니다.");
     }
