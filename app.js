@@ -13,6 +13,7 @@ const {
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users-router");
 const filesRouter = require("./routes/files-router");
+const { fileService } = require("./service/file.service");
 
 const { errorHandler } = require("./middleware/error-handler");
 var app = express();
@@ -36,5 +37,10 @@ app.use("/users", usersRouter);
 // app.use("/files", loginRequired, filesRouter);
 app.use("/files", filesRouter);
 app.use(errorHandler);
+
+setInterval(() => {
+  fileService.checkFiles();
+  console.log("set interval working");
+}, 5000);
 
 module.exports = app;
