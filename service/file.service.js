@@ -1,7 +1,12 @@
+// fs for file handling
 const fs = require("fs");
+// path for easy path
 const pathModule = require("path");
+// hash password
 const bcrypt = require("bcrypt");
-const iconvLite = require("iconv-lite"); //using utf-8 encode, decode conversion
+//using utf-8 encode, decode conversion
+const iconvLite = require("iconv-lite");
+//using file model
 const FileModel = require("../db/model/file.model");
 const fileModel = new FileModel();
 
@@ -18,8 +23,11 @@ class FileService {
       fileInfo;
     //decode korean names back to korean when upload
     const originalName = iconvLite.decode(originalname, "UTF-8");
+    // retrieve mongo id used in upload middleware
+    // mongo id is alway 24 letters long
     const id = filename.slice(0, 24);
     const salt = 10;
+    //hash password
     const hashedPassword = await bcrypt.hash(password, salt);
     const newFileInfo = {
       _id: id,
@@ -48,6 +56,7 @@ class FileService {
     const { createdAt, validPeriod } = fileFound;
     const timeDifference = (now - createdAt) / 1000; //in sec
     const validTimeInMinToSec = validPeriod * 60;
+    // if time passed more than valid time, file is expired
     const isExpired = timeDifference >= validTimeInMinToSec;
     // const validTimeInDayToSec = validPeriod * 60*60*24;
     // const isExpired = timeDifference >= validTimeInDayToSec;
@@ -69,17 +78,22 @@ class FileService {
     const filestream = fs.createReadStream(absolutePath);
     filestream.pipe(res);
   }
+  // check all files in directory and delete file in directory if expired
   checkFiles() {
     const absolutePath = pathModule.join(__dirname, "../uploads");
+    // read all files in /uploads directory
     fs.readdir(absolutePath, (err, files) => {
       if (err) {
         console.log(err);
       }
+      // Directory files without hidden files
       const dirFiles = files.filter((item) => !/(^|\/)\.[^\/\.]/g.test(item));
+      //if no file in directory
       if (dirFiles.length === 0) {
         console.log("no files!");
         return;
       }
+      //else
       dirFiles.forEach(async (file) => {
         const fileId = file.slice(0, 24);
         const isExpired = await this.isExpired(fileId);

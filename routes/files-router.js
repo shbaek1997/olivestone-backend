@@ -3,10 +3,6 @@ const express = require("express");
 const filesRouter = express.Router();
 // Hash password
 const bcrypt = require("bcrypt");
-//For directory, file path
-const pathModule = require("path");
-// fs to handle file download
-const fs = require("fs");
 //multer upload middleware
 const upload = require("../middleware/upload");
 //file service to check file expire
