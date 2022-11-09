@@ -1,8 +1,8 @@
-const FileModel = require("../db/model/file.model");
 const fs = require("fs");
 const pathModule = require("path");
 const bcrypt = require("bcrypt");
 const iconvLite = require("iconv-lite"); //using utf-8 encode, decode conversion
+const FileModel = require("../db/model/file.model");
 const fileModel = new FileModel();
 
 class FileService {

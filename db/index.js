@@ -6,6 +6,7 @@ console.log(DB_URL);
 
 module.exports = () => {
   function connectDB() {
+    //connect to mongo db, using url from .env
     mongoose.connect(DB_URL, function (err) {
       if (err) {
         console.error("Mongo DB Connection Error", err);

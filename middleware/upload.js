@@ -25,6 +25,7 @@ const checkFunction = (req, file, callback) => {
   const checkPassword = password.length >= 8 && password === passwordRepeat;
   req.passwordLengthOk = password.length >= 8;
   req.passwordRepeatOk = password === passwordRepeat;
+  //checkPassword 가 true이면 파일이 accept되고, false이면 reject된다.
   callback(null, checkPassword);
 };
 const upload = multer({
