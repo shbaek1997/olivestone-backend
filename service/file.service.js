@@ -53,6 +53,22 @@ class FileService {
     // const isExpired = timeDifference >= validTimeInDayToSec;
     return isExpired;
   }
+  downloadFile(res, path, mimeType) {
+    const absolutePath = pathModule.join(__dirname, "../", path);
+    // get file name with ID
+    const fileName = pathModule.basename(absolutePath);
+    //encode fileName to convert korean to valid format in response header
+    const encodedFileName = encodeURI(fileName);
+    //set header to include file name and mime type
+    res.setHeader(
+      "Content-Disposition",
+      "attachment;filename=" + encodedFileName
+    );
+    res.setHeader("Content-type", mimeType);
+    //send download file to client using fs
+    const filestream = fs.createReadStream(absolutePath);
+    filestream.pipe(res);
+  }
   checkFiles() {
     const absolutePath = pathModule.join(__dirname, "../uploads");
     fs.readdir(absolutePath, (err, files) => {

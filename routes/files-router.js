@@ -73,27 +73,13 @@ filesRouter.post("/download/", async (req, res, next) => {
       throw new Error("입력한 비밀번호와 파일의 비밀번호가 일치하지 않습니다.");
     }
     //check file expiration date
+    //valid period => 원래는 day기준인데 우선 min 기준으로 test
     const isExpired = await fileService.isExpired(fileId);
     if (isExpired) {
       throw new Error("파일의 유효기간이 만료되었습니다.");
     }
-    //valid period => 원래는 day기준인데 우선 min 기준으로 test
-
-    //use path to get file's absolute path
-    const absolutePath = pathModule.join(__dirname, "../", path);
-    // get file name with ID
-    const fileName = pathModule.basename(absolutePath);
-    //encode fileName to convert korean to valid format in response header
-    const encodedFileName = encodeURI(fileName);
-    //set header to include file name and mime type
-    res.setHeader(
-      "Content-Disposition",
-      "attachment;filename=" + encodedFileName
-    );
-    res.setHeader("Content-type", mimeType);
-    //send download file to client using fs
-    const filestream = fs.createReadStream(absolutePath);
-    filestream.pipe(res);
+    // download file
+    fileService.downloadFile(res, path, mimeType);
   } catch (error) {
     next(error);
   }
