@@ -21,12 +21,16 @@ const storage = multer.diskStorage({
 
 const checkFunction = (req, file, callback) => {
   //check password length and match with repeat password
-  const { password, passwordRepeat } = req.body;
-  const checkPassword = password.length >= 8 && password === passwordRepeat;
-  req.passwordLengthOk = password.length >= 8;
-  req.passwordRepeatOk = password === passwordRepeat;
+  const { password, passwordRepeat, validPeriod } = req.body;
+  const passwordLengthOk = password.length >= 8;
+  const passwordRepeatOk = password === passwordRepeat;
+  const validPeriodOk = validPeriod >= 1;
+  const checkRequest = passwordLengthOk && passwordRepeatOk && validPeriodOk;
+  req.passwordLengthOk = passwordLengthOk;
+  req.passwordRepeatOk = passwordRepeatOk;
+  req.validPeriodOk = validPeriodOk;
   //checkPassword 가 true이면 파일이 accept되고, false이면 reject된다.
-  callback(null, checkPassword);
+  callback(null, checkRequest);
 };
 const upload = multer({
   storage: storage,
