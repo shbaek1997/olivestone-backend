@@ -48,18 +48,32 @@ class FileService {
     });
   }
   async isExpired(fileId) {
-    const now = new Date();
     const fileFound = await this.getFileById(fileId);
     if (!fileFound) {
       throw new Error("file not found");
     }
     const { createdAt, validPeriod } = fileFound;
-    const timeDifference = (now - createdAt) / 1000; //in sec
-    const validTimeInMinToSec = validPeriod * 60;
-    // if time passed more than valid time, file is expired
-    const isExpired = timeDifference >= validTimeInMinToSec;
-    // const validTimeInDayToSec = validPeriod * 60*60*24;
-    // const isExpired = timeDifference >= validTimeInDayToSec;
+    //created At 기준 시간에 9시간을 더함.
+    // expire date in korean time, upload date + valid period(days) and at midnight
+    const expireDateKoreanTime = new Date();
+    expireDateKoreanTime.setTime(
+      createdAt.getTime() +
+        9 * 60 * 60 * 1000 +
+        validPeriod * 24 * 60 * 60 * 1000
+    );
+    expireDateKoreanTime.setUTCHours(0, 0, 0, 0);
+
+    //current time in Korea
+    const timeNowInKorea = new Date(); //utc time으로 보임
+    timeNowInKorea.setTime(timeNowInKorea.getTime() + 9 * 60 * 60 * 1000);
+    // if time timeNowInkorea is greater => file is expired and it should be deleted
+    console.log(
+      "timeNow:",
+      timeNowInKorea,
+      "expire time:",
+      expireDateKoreanTime
+    );
+    const isExpired = expireDateKoreanTime < timeNowInKorea;
     return isExpired;
   }
   downloadFile(res, path, mimeType) {
