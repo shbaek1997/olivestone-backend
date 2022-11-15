@@ -9,6 +9,24 @@ const upload = require("../middleware/upload");
 const { fileService } = require("../service/file.service");
 // user authentication passport middleware
 const { loginRequired } = require("../middleware/auth-jwt");
+const timeService = require("../service/time.service");
+const { isValidObjectId } = require("mongoose");
+
+filesRouter.get("/files", loginRequired, async (req, res, next) => {
+  try {
+    const files = await fileService.getAllFiles();
+    let validFiles = [];
+    for (const file of files) {
+      const isExpired = await fileService.isExpired(file._id);
+      if (!isExpired) {
+        validFiles.push(file);
+      }
+    }
+    res.json({ files: validFiles });
+  } catch (error) {
+    next(error);
+  }
+});
 
 // file upload post request
 filesRouter.post(
@@ -32,6 +50,11 @@ filesRouter.post(
       const { password, validPeriod } = req.body;
       //destructure file
       const { originalname, mimetype, path, filename } = file;
+      const timeNow = new Date();
+      const expireDate = timeService.timeToExpireTimeInKorea(
+        timeNow,
+        validPeriod
+      );
 
       const fileInfo = {
         originalname,
@@ -40,6 +63,7 @@ filesRouter.post(
         filename,
         path,
         validPeriod,
+        expireDate,
       };
       // save new file
       const savedFile = await fileService.saveFile(fileInfo);
