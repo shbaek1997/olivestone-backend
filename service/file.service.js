@@ -9,7 +9,8 @@ const iconvLite = require("iconv-lite");
 //using file model
 const FileModel = require("../db/model/file.model");
 const fileModel = new FileModel();
-
+const timeService = require("./time.service");
+const { create } = require("domain");
 class FileService {
   constructor(fileModel) {
     this.fileModel = fileModel;
@@ -18,9 +19,20 @@ class FileService {
     const fileFound = await this.fileModel.findById(fileId);
     return fileFound;
   }
+  async getAllFiles() {
+    const files = await this.fileModel.findAll();
+    return files;
+  }
   async saveFile(fileInfo) {
-    const { originalname, password, mimetype, filename, path, validPeriod } =
-      fileInfo;
+    const {
+      originalname,
+      password,
+      mimetype,
+      filename,
+      path,
+      validPeriod,
+      expireDate,
+    } = fileInfo;
     //decode korean names back to korean when upload
     const originalName = iconvLite.decode(originalname, "UTF-8");
     // retrieve mongo id used in upload middleware
@@ -36,6 +48,7 @@ class FileService {
       password: hashedPassword,
       mimeType: mimetype,
       validPeriod,
+      expireDate,
     };
     const savedFile = await this.fileModel.createFile(newFileInfo);
     return savedFile;
@@ -52,28 +65,13 @@ class FileService {
     if (!fileFound) {
       throw new Error("file not found");
     }
-    const { createdAt, validPeriod } = fileFound;
-    //created At 기준 시간에 9시간을 더함.
-    // expire date in korean time, upload date + valid period(days) and at midnight
-    const expireDateKoreanTime = new Date();
-    expireDateKoreanTime.setTime(
-      createdAt.getTime() +
-        9 * 60 * 60 * 1000 +
-        validPeriod * 24 * 60 * 60 * 1000
-    );
-    expireDateKoreanTime.setUTCHours(0, 0, 0, 0);
-
+    const { expireDate } = fileFound;
     //current time in Korea
     const timeNowInKorea = new Date(); //utc time으로 보임
     timeNowInKorea.setTime(timeNowInKorea.getTime() + 9 * 60 * 60 * 1000);
     // if time timeNowInkorea is greater => file is expired and it should be deleted
-    console.log(
-      "timeNow:",
-      timeNowInKorea,
-      "expire time:",
-      expireDateKoreanTime
-    );
-    const isExpired = expireDateKoreanTime < timeNowInKorea;
+    console.log("timeNow:", timeNowInKorea, "expire time:", expireDate);
+    const isExpired = expireDate < timeNowInKorea;
     return isExpired;
   }
   downloadFile(res, path, mimeType) {

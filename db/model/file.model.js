@@ -15,5 +15,9 @@ class FileModel {
     const createdFile = await File.create(fileInfo);
     return createdFile;
   }
+  async findAll() {
+    const files = await File.find({});
+    return files;
+  }
 }
 module.exports = FileModel;
