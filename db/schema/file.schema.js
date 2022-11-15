@@ -27,6 +27,10 @@ const FileSchema = new Schema(
       type: Number, //in days
       required: true,
     },
+    expireDate: {
+      type: Date,
+      required: true,
+    },
   },
   {
     collection: "files",
