@@ -23,6 +23,16 @@ class FileService {
     const files = await this.fileModel.findAll();
     return files;
   }
+  async updateFilePassword(fileInfo) {
+    const { fileId, filePassword } = fileInfo;
+    const salt = 10;
+    const hashedFilePassword = await bcrypt.hash(filePassword, salt);
+    const updatedFile = await this.fileModel.updateFilePassword(
+      fileId,
+      hashedFilePassword
+    );
+    return updatedFile;
+  }
   async saveFile(fileInfo) {
     const {
       originalname,

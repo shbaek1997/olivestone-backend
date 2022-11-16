@@ -19,5 +19,14 @@ class FileModel {
     const files = await File.find({});
     return files;
   }
+
+  async updateFilePassword(fileId, fileHashedPassword) {
+    const filter = { _id: fileId };
+    const update = { password: fileHashedPassword };
+    const updatedFile = await File.findOneAndUpdate(filter, update, {
+      returnOriginal: false,
+    });
+    return updatedFile;
+  }
 }
 module.exports = FileModel;

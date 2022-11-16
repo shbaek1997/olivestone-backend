@@ -14,15 +14,44 @@ const { isValidObjectId } = require("mongoose");
 
 filesRouter.get("/files", loginRequired, async (req, res, next) => {
   try {
+    //get all files
     const files = await fileService.getAllFiles();
+    //filtering valid files(not expired files)
     let validFiles = [];
     for (const file of files) {
       const isExpired = await fileService.isExpired(file._id);
+      //if file is not expired
       if (!isExpired) {
+        //add file to array
         validFiles.push(file);
       }
     }
     res.json({ files: validFiles });
+  } catch (error) {
+    next(error);
+  }
+});
+
+//file change password...
+filesRouter.patch("/:fileId", loginRequired, async (req, res, next) => {
+  try {
+    const { fileId } = req.params;
+    const { filePassword, fileRepeatPassword } = req.body;
+    const passwordLengthOk = filePassword.length >= 8;
+    const passwordRepeatOk = filePassword === fileRepeatPassword;
+    if (!passwordLengthOk) {
+      throw new Error("파일 비밀번호는 최소 8글자이어야 합니다.");
+    }
+    if (!passwordRepeatOk) {
+      throw new Error("파일 비밀번호와 비밀번호 확인이 일치 하지 않습니다.");
+    }
+    const file = await fileService.getFileById(fileId);
+    if (!file) {
+      throw new Error("해당 아이디의 파일은 존재하지 않습니다");
+    }
+    const fileInfo = { fileId, filePassword };
+    const updatedFile = await fileService.updateFilePassword(fileInfo);
+    res.json(updatedFile);
   } catch (error) {
     next(error);
   }
