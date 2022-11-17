@@ -15,11 +15,13 @@ class FileModel {
     const createdFile = await File.create(fileInfo);
     return createdFile;
   }
+  //find all files in db
   async findAll() {
     const files = await File.find({});
     return files;
   }
 
+  //find one file by file id, and update file with new hashed password
   async updateFilePassword(fileId, fileHashedPassword) {
     const filter = { _id: fileId };
     const update = { password: fileHashedPassword };

@@ -15,14 +15,17 @@ class FileService {
   constructor(fileModel) {
     this.fileModel = fileModel;
   }
+  // get one file by id (from db)
   async getFileById(fileId) {
     const fileFound = await this.fileModel.findById(fileId);
     return fileFound;
   }
+  // get all files in the db
   async getAllFiles() {
     const files = await this.fileModel.findAll();
     return files;
   }
+  //find one file with file id, then hash password and update the file with new password
   async updateFilePassword(fileInfo) {
     const { fileId, filePassword } = fileInfo;
     const salt = 10;
@@ -33,6 +36,7 @@ class FileService {
     );
     return updatedFile;
   }
+  // save new file uploaded to db
   async saveFile(fileInfo) {
     const {
       originalname,
@@ -63,6 +67,7 @@ class FileService {
     const savedFile = await this.fileModel.createFile(newFileInfo);
     return savedFile;
   }
+  // delete file with file id (not in db, in directory)
   async deleteFile(fileId) {
     const fileFound = await this.getFileById(fileId);
     const { path } = fileFound;
@@ -70,6 +75,8 @@ class FileService {
       console.log(err);
     });
   }
+
+  //check file's expire date and check if the file has expired
   async isExpired(fileId) {
     const fileFound = await this.getFileById(fileId);
     if (!fileFound) {
@@ -84,6 +91,7 @@ class FileService {
     const isExpired = expireDate < timeNowInKorea;
     return isExpired;
   }
+
   downloadFile(res, path, mimeType) {
     const absolutePath = pathModule.join(__dirname, "../", path);
     // get file name with ID
@@ -100,6 +108,7 @@ class FileService {
     const filestream = fs.createReadStream(absolutePath);
     filestream.pipe(res);
   }
+
   // check all files in directory and delete file in directory if expired
   checkFiles() {
     const absolutePath = pathModule.join(__dirname, "../uploads");
