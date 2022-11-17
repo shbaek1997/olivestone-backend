@@ -55,7 +55,8 @@ app.use(errorHandler);
 
 //setInterval to delete file periodically
 // const timeInterval = 1000 * 60 * 10; in ms, value is 10min now.
-const shortTimeInterval = 1000 * 10;
+const shortTimeInterval = 1000 * 60 * 60 * 1; //1hr
+fileService.checkFiles();
 setInterval(() => {
   fileService.checkFiles();
   console.log("set interval working");
