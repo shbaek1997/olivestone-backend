@@ -139,4 +139,23 @@ filesRouter.post("/download/", async (req, res, next) => {
 //curl command
 //curl -X POST http://localhost:5000/files/download -H "Content-Type: application/json" -d '{"fileId":"636a08dcac8468e52ce5481f","plainPassword":"12345678"}' --output filename
 
+filesRouter.get("/download/:fileId", loginRequired, async (req, res, next) => {
+  try {
+    const { fileId } = req.params;
+    console.log(fileId);
+    const fileFound = await fileService.getFileById(fileId);
+    if (!fileFound) {
+      throw new Error("해당 아이디를 갖고 있는 파일은 존재하지 않습니다.");
+    }
+    const isExpired = await fileService.isExpired(fileId);
+    if (isExpired) {
+      throw new Error("파일의 유효기간이 만료되었습니다.");
+    }
+    const { path, mimeType, password } = fileFound;
+    fileService.downloadFile(res, path, mimeType);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = filesRouter;
