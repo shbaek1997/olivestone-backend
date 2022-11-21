@@ -25,6 +25,14 @@ class FileService {
     const files = await this.fileModel.findAll();
     return files;
   }
+  async updateFileExpireDate(fileInfo) {
+    const { fileId, expireDate } = fileInfo;
+    const updatedFile = await this.fileModel.updateFileExpireDate(
+      fileId,
+      expireDate
+    );
+    return updatedFile;
+  }
   //find one file with file id, then hash password and update the file with new password
   async updateFilePassword(fileInfo) {
     const { fileId, filePassword } = fileInfo;

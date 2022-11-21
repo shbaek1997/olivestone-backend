@@ -31,31 +31,57 @@ filesRouter.get("/files", loginRequired, async (req, res, next) => {
     next(error);
   }
 });
+filesRouter.patch(
+  "/expireDate/:fileId",
+  loginRequired,
+  async (req, res, next) => {
+    try {
+      const { fileId } = req.params;
+      timeNow = new Date();
+      const validPeriod = 0;
+      const expireDate = timeService.timeToExpireTimeInKorea(
+        timeNow,
+        validPeriod
+      );
+      console.log(expireDate);
+      const fileInfo = { fileId, expireDate };
+      const updatedFile = await fileService.updateFileExpireDate(fileInfo);
+      fileService.checkFiles();
+      res.json(updatedFile);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 //file change password...
-filesRouter.patch("/:fileId", loginRequired, async (req, res, next) => {
-  try {
-    const { fileId } = req.params;
-    const { filePassword, fileRepeatPassword } = req.body;
-    const passwordLengthOk = filePassword.length >= 8;
-    const passwordRepeatOk = filePassword === fileRepeatPassword;
-    if (!passwordLengthOk) {
-      throw new Error("파일 비밀번호는 최소 8글자이어야 합니다.");
+filesRouter.patch(
+  "/password/:fileId",
+  loginRequired,
+  async (req, res, next) => {
+    try {
+      const { fileId } = req.params;
+      const { filePassword, fileRepeatPassword } = req.body;
+      const passwordLengthOk = filePassword.length >= 8;
+      const passwordRepeatOk = filePassword === fileRepeatPassword;
+      if (!passwordLengthOk) {
+        throw new Error("파일 비밀번호는 최소 8글자이어야 합니다.");
+      }
+      if (!passwordRepeatOk) {
+        throw new Error("파일 비밀번호와 비밀번호 확인이 일치 하지 않습니다.");
+      }
+      const file = await fileService.getFileById(fileId);
+      if (!file) {
+        throw new Error("해당 아이디의 파일은 존재하지 않습니다");
+      }
+      const fileInfo = { fileId, filePassword };
+      const updatedFile = await fileService.updateFilePassword(fileInfo);
+      res.json(updatedFile);
+    } catch (error) {
+      next(error);
     }
-    if (!passwordRepeatOk) {
-      throw new Error("파일 비밀번호와 비밀번호 확인이 일치 하지 않습니다.");
-    }
-    const file = await fileService.getFileById(fileId);
-    if (!file) {
-      throw new Error("해당 아이디의 파일은 존재하지 않습니다");
-    }
-    const fileInfo = { fileId, filePassword };
-    const updatedFile = await fileService.updateFilePassword(fileInfo);
-    res.json(updatedFile);
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 // file upload post request
 filesRouter.post(

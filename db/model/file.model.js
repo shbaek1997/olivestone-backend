@@ -30,5 +30,13 @@ class FileModel {
     });
     return updatedFile;
   }
+  async updateFileExpireDate(fileId, expireDate) {
+    const filter = { _id: fileId };
+    const update = { expireDate };
+    const updatedFile = await File.findOneAndUpdate(filter, update, {
+      returnOriginal: false,
+    });
+    return updatedFile;
+  }
 }
 module.exports = FileModel;
