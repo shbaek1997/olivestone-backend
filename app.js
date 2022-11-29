@@ -42,15 +42,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
-
 //initialize passport and use strategies
 app.use(passport.initialize());
 passportConfiguration();
 JWTConfiguration();
 
 //use routers and error-handling middleware
-app.use("/users", usersRouter);
-app.use("/files", filesRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/files", filesRouter);
 app.use(errorHandler);
 
 //setInterval to delete file periodically

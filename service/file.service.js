@@ -95,7 +95,6 @@ class FileService {
     const timeNowInKorea = new Date(); //utc time으로 보임
     timeNowInKorea.setTime(timeNowInKorea.getTime() + 9 * 60 * 60 * 1000);
     // if time timeNowInkorea is greater => file is expired and it should be deleted
-    console.log("timeNow:", timeNowInKorea, "expire time:", expireDate);
     const isExpired = expireDate < timeNowInKorea;
     return isExpired;
   }
