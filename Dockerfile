@@ -1,5 +1,5 @@
 # node 서버의 node 환경 설정..
-FROM node:latest 
+FROM node:18.12-alpine3.15
 
 # /app 디렉토리를 생성
 RUN mkdir -p /app
