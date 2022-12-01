@@ -2,7 +2,9 @@
 const multer = require("multer");
 const mongoose = require("mongoose");
 const iconvLite = require("iconv-lite");
-
+const {
+  fileUploadJoiSchema,
+} = require("../db/schema/joi-schema/file.joi.schema");
 //set up multer storage option
 const storage = multer.diskStorage({
   // uploads directory
@@ -22,15 +24,16 @@ const storage = multer.diskStorage({
 const checkFunction = (req, file, callback) => {
   //check password length and match with repeat password
   const { password, passwordRepeat, validPeriod } = req.body;
-  const passwordLengthOk = password.length >= 8;
-  const passwordRepeatOk = password === passwordRepeat;
-  const validPeriodOk = validPeriod >= 1;
-  const checkRequest = passwordLengthOk && passwordRepeatOk && validPeriodOk;
-  req.passwordLengthOk = passwordLengthOk;
-  req.passwordRepeatOk = passwordRepeatOk;
-  req.validPeriodOk = validPeriodOk;
-  //checkPassword 가 true이면 파일이 accept되고, false이면 reject된다.
-  callback(null, checkRequest);
+  const result = fileUploadJoiSchema.validate({
+    password,
+    passwordRepeat,
+    validPeriod,
+  });
+  const error = result.error;
+  const checkValid = !error ? true : false;
+  req.error = error;
+  //checkValid 가 true이면 파일이 accept되고, false이면 reject된다.
+  callback(null, checkValid);
 };
 const upload = multer({
   storage: storage,

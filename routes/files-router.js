@@ -10,7 +10,11 @@ const { fileService } = require("../service/file.service");
 // user authentication passport middleware
 const { loginRequired } = require("../middleware/auth-jwt");
 const timeService = require("../service/time.service");
-const { isValidObjectId } = require("mongoose");
+const {
+  fileDownloadJoiSchema,
+  fileIdJoiSchema,
+  filePasswordUpdateJoiSchema,
+} = require("../db/schema/joi-schema/file.joi.schema");
 
 filesRouter.get("/files", loginRequired, async (req, res, next) => {
   try {
@@ -37,13 +41,17 @@ filesRouter.patch(
   async (req, res, next) => {
     try {
       const { fileId } = req.params;
+      await fileIdJoiSchema.validateAsync({ fileId });
       timeNow = new Date();
       const validPeriod = 0;
       const expireDate = timeService.timeToExpireTimeInKorea(
         timeNow,
         validPeriod
       );
-      console.log(expireDate);
+      const file = await fileService.getFileById(fileId);
+      if (!file) {
+        throw new Error("해당 아이디의 파일은 존재하지 않습니다");
+      }
       const fileInfo = { fileId, expireDate };
       const updatedFile = await fileService.updateFileExpireDate(fileInfo);
       fileService.checkFiles();
@@ -62,14 +70,11 @@ filesRouter.patch(
     try {
       const { fileId } = req.params;
       const { filePassword, fileRepeatPassword } = req.body;
-      const passwordLengthOk = filePassword.length >= 8;
-      const passwordRepeatOk = filePassword === fileRepeatPassword;
-      if (!passwordLengthOk) {
-        throw new Error("파일 비밀번호는 최소 8글자이어야 합니다.");
-      }
-      if (!passwordRepeatOk) {
-        throw new Error("파일 비밀번호와 비밀번호 확인이 일치 하지 않습니다.");
-      }
+      await filePasswordUpdateJoiSchema.validateAsync({
+        fileId,
+        password: filePassword,
+        passwordRepeat: fileRepeatPassword,
+      });
       const file = await fileService.getFileById(fileId);
       if (!file) {
         throw new Error("해당 아이디의 파일은 존재하지 않습니다");
@@ -90,16 +95,14 @@ filesRouter.post(
   upload.single("file"),
   async (req, res, next) => {
     try {
-      // get file object, check password(from upload middleware) variables from req
-      const { file, passwordLengthOk, passwordRepeatOk, validPeriodOk } = req;
-      if (!passwordLengthOk) {
-        throw new Error("파일 비밀번호는 최소 8글자이어야 합니다.");
+      //if file is missing, upload middleware is skipped
+      const { file, error } = req;
+      if (error) {
+        const { message } = error.details[0];
+        throw new Error(message);
       }
-      if (!passwordRepeatOk) {
-        throw new Error("파일 비밀번호와 비밀번호 확인이 일치 하지 않습니다.");
-      }
-      if (!validPeriodOk) {
-        throw new Error("파일 유효기간 설정은 1미만으로 할 수 없습니다.");
+      if (!file) {
+        throw new Error("파일은 반드시 입력해야 합니다.");
       }
       // file password and validPeriod from req form body
       const { password, validPeriod } = req.body;
@@ -138,6 +141,10 @@ filesRouter.post("/download/", async (req, res, next) => {
   try {
     //file id and plain password in request body
     const { fileId, plainPassword } = req.body;
+    await fileDownloadJoiSchema.validateAsync({
+      fileId,
+      password: plainPassword,
+    });
     // search file using file id
     const fileFound = await fileService.getFileById(fileId);
     if (!fileFound) {
@@ -168,7 +175,7 @@ filesRouter.post("/download/", async (req, res, next) => {
 filesRouter.get("/download/:fileId", loginRequired, async (req, res, next) => {
   try {
     const { fileId } = req.params;
-    console.log(fileId);
+    await fileIdJoiSchema.validateAsync({ fileId });
     const fileFound = await fileService.getFileById(fileId);
     if (!fileFound) {
       throw new Error("해당 아이디를 갖고 있는 파일은 존재하지 않습니다.");
