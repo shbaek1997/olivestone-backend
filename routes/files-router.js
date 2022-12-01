@@ -16,7 +16,7 @@ const {
   filePasswordUpdateJoiSchema,
 } = require("../db/schema/joi-schema/file.joi.schema");
 
-filesRouter.get("/files", loginRequired, async (req, res, next) => {
+filesRouter.get("/all", loginRequired, async (req, res, next) => {
   try {
     //get all files
     const files = await fileService.getAllFiles();
