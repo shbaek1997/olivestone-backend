@@ -12,6 +12,7 @@ const { loginRequired } = require("../middleware/auth-jwt");
 const timeService = require("../service/time.service");
 const {
   fileDownloadJoiSchema,
+  fileIdJoiSchema,
 } = require("../db/schema/joi-schema/file.joi.schema");
 
 filesRouter.get("/files", loginRequired, async (req, res, next) => {
@@ -174,7 +175,7 @@ filesRouter.post("/download/", async (req, res, next) => {
 filesRouter.get("/download/:fileId", loginRequired, async (req, res, next) => {
   try {
     const { fileId } = req.params;
-    console.log(fileId);
+    await fileIdJoiSchema.validateAsync({ fileId });
     const fileFound = await fileService.getFileById(fileId);
     if (!fileFound) {
       throw new Error("해당 아이디를 갖고 있는 파일은 존재하지 않습니다.");
