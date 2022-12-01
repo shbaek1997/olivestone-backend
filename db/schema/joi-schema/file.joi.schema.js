@@ -1,4 +1,4 @@
-import joi from "joi";
+const joi = require("joi");
 
 const fileIdJoiSchema = joi.object({
   fileId: joi
@@ -50,4 +50,8 @@ const filePasswordUpdateJoiSchema = joi.object({
 
 // const fileUploadJoiSchema =
 
-export { fileIdJoiSchema, fileDownloadJoiSchema, filePasswordUpdateJoiSchema };
+module.exports = {
+  fileIdJoiSchema,
+  fileDownloadJoiSchema,
+  filePasswordUpdateJoiSchema,
+};
