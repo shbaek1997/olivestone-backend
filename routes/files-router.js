@@ -41,13 +41,17 @@ filesRouter.patch(
   async (req, res, next) => {
     try {
       const { fileId } = req.params;
+      await fileIdJoiSchema.validateAsync({ fileId });
       timeNow = new Date();
       const validPeriod = 0;
       const expireDate = timeService.timeToExpireTimeInKorea(
         timeNow,
         validPeriod
       );
-      console.log(expireDate);
+      const file = await fileService.getFileById(fileId);
+      if (!file) {
+        throw new Error("해당 아이디의 파일은 존재하지 않습니다");
+      }
       const fileInfo = { fileId, expireDate };
       const updatedFile = await fileService.updateFileExpireDate(fileInfo);
       fileService.checkFiles();
