@@ -10,7 +10,9 @@ const { fileService } = require("../service/file.service");
 // user authentication passport middleware
 const { loginRequired } = require("../middleware/auth-jwt");
 const timeService = require("../service/time.service");
-const { isValidObjectId } = require("mongoose");
+const {
+  fileDownloadJoiSchema,
+} = require("../db/schema/joi-schema/file.joi.schema");
 
 filesRouter.get("/files", loginRequired, async (req, res, next) => {
   try {
@@ -138,6 +140,10 @@ filesRouter.post("/download/", async (req, res, next) => {
   try {
     //file id and plain password in request body
     const { fileId, plainPassword } = req.body;
+    await fileDownloadJoiSchema.validateAsync({
+      fileId,
+      password: plainPassword,
+    });
     // search file using file id
     const fileFound = await fileService.getFileById(fileId);
     if (!fileFound) {
