@@ -13,6 +13,7 @@ const timeService = require("../service/time.service");
 const {
   fileDownloadJoiSchema,
   fileIdJoiSchema,
+  filePasswordUpdateJoiSchema,
 } = require("../db/schema/joi-schema/file.joi.schema");
 
 filesRouter.get("/files", loginRequired, async (req, res, next) => {
@@ -65,14 +66,11 @@ filesRouter.patch(
     try {
       const { fileId } = req.params;
       const { filePassword, fileRepeatPassword } = req.body;
-      const passwordLengthOk = filePassword.length >= 8;
-      const passwordRepeatOk = filePassword === fileRepeatPassword;
-      if (!passwordLengthOk) {
-        throw new Error("파일 비밀번호는 최소 8글자이어야 합니다.");
-      }
-      if (!passwordRepeatOk) {
-        throw new Error("파일 비밀번호와 비밀번호 확인이 일치 하지 않습니다.");
-      }
+      await filePasswordUpdateJoiSchema.validateAsync({
+        fileId,
+        password: filePassword,
+        passwordRepeat: fileRepeatPassword,
+      });
       const file = await fileService.getFileById(fileId);
       if (!file) {
         throw new Error("해당 아이디의 파일은 존재하지 않습니다");
