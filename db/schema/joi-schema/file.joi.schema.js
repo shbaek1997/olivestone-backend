@@ -41,17 +41,31 @@ const filePasswordUpdateJoiSchema = joi.object({
   password: joi.string().required().min(8).messages({
     "string.empty": "파일 비밀번호가 비어있습니다.",
     "any.required": "파일 비밀번호는 반드시 입력되어야 합니다.",
-    "string.min": "파일 비밀번호는 최소 4글자 이상이어야 합니다.",
+    "string.min": "파일 비밀번호는 최소 8글자 이상이어야 합니다.",
   }),
   passwordRepeat: joi.any().equal(joi.ref("password")).required().messages({
     "any.only": "파일 비밀번호와 비밀번호 확인이 일치하지 않습니다.",
   }),
 });
 
-// const fileUploadJoiSchema =
+const fileUploadJoiSchema = joi.object({
+  password: joi.string().required().min(8).messages({
+    "string.empty": "파일 비밀번호가 비어있습니다.",
+    "any.required": "파일 비밀번호는 반드시 입력되어야 합니다.",
+    "string.min": "파일 비밀번호는 최소 8글자 이상이어야 합니다.",
+  }),
+  passwordRepeat: joi.any().equal(joi.ref("password")).required().messages({
+    "any.only": "파일 비밀번호와 비밀번호 확인이 일치하지 않습니다.",
+  }),
+  validPeriod: joi.number().required().min(1).messages({
+    "any.required": "유효 기한은 반드시 입력해야 합니다.",
+    "number.min": "유효 기한은 최소 하루입니다.",
+  }),
+});
 
 module.exports = {
   fileIdJoiSchema,
   fileDownloadJoiSchema,
   filePasswordUpdateJoiSchema,
+  fileUploadJoiSchema,
 };

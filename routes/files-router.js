@@ -95,16 +95,14 @@ filesRouter.post(
   upload.single("file"),
   async (req, res, next) => {
     try {
-      // get file object, check password(from upload middleware) variables from req
-      const { file, passwordLengthOk, passwordRepeatOk, validPeriodOk } = req;
-      if (!passwordLengthOk) {
-        throw new Error("파일 비밀번호는 최소 8글자이어야 합니다.");
+      //if file is missing, upload middleware is skipped
+      const { file, error } = req;
+      if (error) {
+        const { message } = error.details[0];
+        throw new Error(message);
       }
-      if (!passwordRepeatOk) {
-        throw new Error("파일 비밀번호와 비밀번호 확인이 일치 하지 않습니다.");
-      }
-      if (!validPeriodOk) {
-        throw new Error("파일 유효기간 설정은 1미만으로 할 수 없습니다.");
+      if (!file) {
+        throw new Error("파일은 반드시 입력해야 합니다.");
       }
       // file password and validPeriod from req form body
       const { password, validPeriod } = req.body;
