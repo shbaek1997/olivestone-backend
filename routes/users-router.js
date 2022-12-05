@@ -16,7 +16,7 @@ userRouter.get("/auth", loginRequired, (req, res, next) => {
 });
 
 //user register post request to create new user (only for first user)
-//not used often
+//not used unless register page is made
 userRouter.post("/register", async (req, res, next) => {
   try {
     //body contains all the user info required

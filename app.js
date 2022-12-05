@@ -4,7 +4,6 @@ const express = require("express");
 const cors = require("cors");
 // passport for user authentication
 const passport = require("passport");
-const cookieParser = require("cookie-parser");
 // use morgan for loggin console
 const logger = require("morgan");
 // dotenv to use .env file
@@ -41,7 +40,6 @@ app.use(cors({ exposedHeaders: ["Content-Disposition"] }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cookieParser());
 //initialize passport and use strategies
 app.use(passport.initialize());
 passportConfiguration();

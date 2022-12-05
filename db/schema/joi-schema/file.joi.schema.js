@@ -1,5 +1,6 @@
 const joi = require("joi");
 
+//check file id format using regex
 const fileIdJoiSchema = joi.object({
   fileId: joi
     .string()
@@ -12,6 +13,7 @@ const fileIdJoiSchema = joi.object({
     }),
 });
 
+//check file download- file id and password format
 const fileDownloadJoiSchema = joi.object({
   fileId: joi
     .string()
@@ -28,6 +30,7 @@ const fileDownloadJoiSchema = joi.object({
   }),
 });
 
+//check file password change - file id, password, password repeat
 const filePasswordUpdateJoiSchema = joi.object({
   fileId: joi
     .string()
@@ -48,6 +51,7 @@ const filePasswordUpdateJoiSchema = joi.object({
   }),
 });
 
+//check file upload - file password, password repeat, valid period
 const fileUploadJoiSchema = joi.object({
   password: joi.string().required().min(8).messages({
     "string.empty": "파일 비밀번호가 비어있습니다.",

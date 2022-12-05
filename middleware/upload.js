@@ -2,6 +2,7 @@
 const multer = require("multer");
 const mongoose = require("mongoose");
 const iconvLite = require("iconv-lite");
+//joi schema for data validation
 const {
   fileUploadJoiSchema,
 } = require("../db/schema/joi-schema/file.joi.schema");
@@ -11,7 +12,7 @@ const storage = multer.diskStorage({
   destination: function (req, file, callback) {
     callback(null, "uploads/");
   },
-  // custom file name: mongoDB ID - original name
+  // custom file name: "mongoDB ID - original name"
   filename: function (req, file, callback) {
     const { originalname } = file;
     const decodedOriginalName = iconvLite.decode(originalname, "UTF-8");
@@ -21,16 +22,19 @@ const storage = multer.diskStorage({
   },
 });
 
+//file filter function to check file form submission validity.
 const checkFunction = (req, file, callback) => {
-  //check password length and match with repeat password
+  //check password length, repeat password, and valid period
   const { password, passwordRepeat, validPeriod } = req.body;
   const result = fileUploadJoiSchema.validate({
     password,
     passwordRepeat,
     validPeriod,
   });
+  //joi schema.validate return object with error if validation fails
   const error = result.error;
   const checkValid = !error ? true : false;
+  //req 에 에러관련 내용을 붙여서 라우터에서 확인
   req.error = error;
   //checkValid 가 true이면 파일이 accept되고, false이면 reject된다.
   callback(null, checkValid);

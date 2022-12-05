@@ -9,8 +9,6 @@ const iconvLite = require("iconv-lite");
 //using file model
 const FileModel = require("../db/model/file.model");
 const fileModel = new FileModel();
-const timeService = require("./time.service");
-const { create } = require("domain");
 class FileService {
   constructor(fileModel) {
     this.fileModel = fileModel;
@@ -20,11 +18,14 @@ class FileService {
     const fileFound = await this.fileModel.findById(fileId);
     return fileFound;
   }
+
   // get all files in the db
   async getAllFiles() {
     const files = await this.fileModel.findAll();
     return files;
   }
+
+  // update file expire date to today
   async updateFileExpireDate(fileInfo) {
     const { fileId, expireDate } = fileInfo;
     const updatedFile = await this.fileModel.updateFileExpireDate(
@@ -33,7 +34,8 @@ class FileService {
     );
     return updatedFile;
   }
-  //find one file with file id, then hash password and update the file with new password
+
+  //find one file with file id, then hash password and update the file with a new password
   async updateFilePassword(fileInfo) {
     const { fileId, filePassword } = fileInfo;
     const salt = 10;
@@ -44,6 +46,7 @@ class FileService {
     );
     return updatedFile;
   }
+
   // save new file uploaded to db
   async saveFile(fileInfo) {
     const {
@@ -75,6 +78,7 @@ class FileService {
     const savedFile = await this.fileModel.createFile(newFileInfo);
     return savedFile;
   }
+
   // delete file with file id (not in db, in directory)
   async deleteFile(fileId) {
     const fileFound = await this.getFileById(fileId);
@@ -99,6 +103,7 @@ class FileService {
     return isExpired;
   }
 
+  // download file
   downloadFile(res, path, mimeType) {
     const absolutePath = pathModule.join(__dirname, "../", path);
     // get file name with ID

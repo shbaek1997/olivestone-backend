@@ -6,14 +6,19 @@ class UserService {
   constructor(userModel) {
     this.userModel = userModel;
   }
+  //get user by id
   async getUserById(userId) {
     const user = await this.userModel.findById(userId);
     return user;
   }
+
+  //get user by username
   async getUserByUsername(username) {
     const user = await this.userModel.findByUsername(username);
     return user;
   }
+
+  //create new user
   async createNewUser(userInfo) {
     const { username, password } = userInfo;
     const salt = 10;

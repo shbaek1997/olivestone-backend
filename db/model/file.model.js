@@ -6,11 +6,12 @@ const { FileSchema } = require("../schema/file.schema");
 const File = model("files", FileSchema);
 //Create file model - find one file by id, create one file
 class FileModel {
+  //find file by file id
   async findById(fileId) {
     const file = await File.findOne({ _id: fileId });
     return file;
   }
-
+  //create new file
   async createFile(fileInfo) {
     const createdFile = await File.create(fileInfo);
     return createdFile;
@@ -30,6 +31,7 @@ class FileModel {
     });
     return updatedFile;
   }
+  //find one file by file id and update expiration date to today to make file expired
   async updateFileExpireDate(fileId, expireDate) {
     const filter = { _id: fileId };
     const update = { expireDate };

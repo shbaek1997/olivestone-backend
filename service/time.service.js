@@ -1,4 +1,5 @@
 class TimeService {
+  //convert time to expire time in korea
   timeToExpireTimeInKorea(timeObject, validPeriod) {
     const expireDateKoreanTime = new Date();
     expireDateKoreanTime.setTime(
@@ -7,7 +8,6 @@ class TimeService {
         validPeriod * 24 * 60 * 60 * 1000
     );
     expireDateKoreanTime.setUTCHours(0, 0, 0, 0);
-    console.log(expireDateKoreanTime);
     return expireDateKoreanTime;
   }
 }
