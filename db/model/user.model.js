@@ -13,8 +13,8 @@ class UserModel {
     return user;
   }
   //find a user by username
-  async findByUsername(username) {
-    const user = await User.findOne({ username });
+  async findByEmail(email) {
+    const user = await User.findOne({ email });
     return user;
   }
 

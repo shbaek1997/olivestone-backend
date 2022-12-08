@@ -13,17 +13,17 @@ class UserService {
   }
 
   //get user by username
-  async getUserByUsername(username) {
-    const user = await this.userModel.findByUsername(username);
+  async getUserByEmail(email) {
+    const user = await this.userModel.findByEmail(email);
     return user;
   }
 
   //create new user
   async createNewUser(userInfo) {
-    const { username, password } = userInfo;
+    const { email, password, fullname } = userInfo;
     const salt = 10;
     const hashedPassword = await bcrypt.hash(password, salt);
-    const newUserInfo = { username, password: hashedPassword };
+    const newUserInfo = { email, fullname, password: hashedPassword };
     const createdNewUser = await this.userModel.createUser(newUserInfo);
     return createdNewUser;
   }
