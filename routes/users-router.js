@@ -12,12 +12,43 @@ const { userService } = require("../service/user.service");
 const {
   userRegisterJoiSchema,
 } = require("../db/schema/joi-schema/user.joi.schema");
+const { superUserRequired } = require("../middleware/super-user-required");
 
 // get request with passport middleware to check if user is logged in
 userRouter.get("/auth", loginRequired, (req, res, next) => {
   const { user } = req;
   res.json({ user });
 });
+
+//get all basic-users for admin users
+userRouter.get(
+  "/basic-users",
+  loginRequired,
+  adminRequired,
+  async (req, res, next) => {
+    try {
+      const users = await userService.getBasicUsers();
+      res.json(users);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+//get all users except super user
+userRouter.get(
+  "/users",
+  loginRequired,
+  superUserRequired,
+  async (req, res, next) => {
+    try {
+      const users = await userService.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 //user register post request to create new user (only for first user)
 //not used unless register page is made

@@ -12,10 +12,21 @@ class UserService {
     return user;
   }
 
-  //get user by username
+  //get user by email
   async getUserByEmail(email) {
     const user = await this.userModel.findByEmail(email);
     return user;
+  }
+
+  //get all basic-users
+  async getBasicUsers() {
+    const users = await this.userModel.findBasicUsers();
+    return users;
+  }
+  // get all users
+  async getAllUsers() {
+    const users = await this.userModel.findAllUsers();
+    return users;
   }
 
   //create new user

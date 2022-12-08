@@ -17,6 +17,14 @@ class UserModel {
     const user = await User.findOne({ email });
     return user;
   }
+  async findBasicUsers() {
+    const users = await User.find({ role: "basic-user" });
+    return users;
+  }
+  async findAllUsers() {
+    const users = await User.find({});
+    return users;
+  }
 
   //create new user
   async createUser(userInfo) {
