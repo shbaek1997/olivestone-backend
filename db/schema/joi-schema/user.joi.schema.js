@@ -22,4 +22,16 @@ const userRegisterJoiSchema = joi.object({
   //관리자로 유저 추가가 필요하면 나중에 추가..
 });
 
-module.exports = { userRegisterJoiSchema };
+const userIdJoiSchema = joi.object({
+  userId: joi
+    .string()
+    .required()
+    .pattern(/^[0-9a-fA-F]{24}$/)
+    .messages({
+      "string.empty": "유저 아이디가 비어있습니다.",
+      "any.required": "유저 아이디는 반드시 입력되어야 합니다.",
+      "string.pattern.base": "유저 아이디 형식이 올바르지 않습니다.",
+    }),
+});
+
+module.exports = { userRegisterJoiSchema, userIdJoiSchema };
