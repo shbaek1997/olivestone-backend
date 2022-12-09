@@ -38,6 +38,10 @@ class UserService {
     const createdNewUser = await this.userModel.createUser(newUserInfo);
     return createdNewUser;
   }
+  async deleteUser(userId) {
+    const result = await this.userModel.deleteUser(userId);
+    return result;
+  }
 }
 const userService = new UserService(userModel);
 module.exports = { userService };

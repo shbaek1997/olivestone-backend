@@ -11,6 +11,7 @@ const { adminRequired } = require("../middleware/admin-required");
 const { userService } = require("../service/user.service");
 const {
   userRegisterJoiSchema,
+  userIdJoiSchema,
 } = require("../db/schema/joi-schema/user.joi.schema");
 const { superUserRequired } = require("../middleware/super-user-required");
 
@@ -28,7 +29,7 @@ userRouter.get(
   async (req, res, next) => {
     try {
       const users = await userService.getBasicUsers();
-      res.json(users);
+      res.json({ users });
     } catch (error) {
       next(error);
     }
@@ -37,13 +38,13 @@ userRouter.get(
 
 //get all users except super user
 userRouter.get(
-  "/users",
+  "/all",
   loginRequired,
   superUserRequired,
   async (req, res, next) => {
     try {
       const users = await userService.getAllUsers();
-      res.json(users);
+      res.json({ users });
     } catch (error) {
       next(error);
     }
@@ -139,5 +140,31 @@ userRouter.post("/login", async (req, res, next) => {
     next(error);
   }
 });
+//user delete
+
+userRouter.delete(
+  "/:userId",
+  loginRequired,
+  adminRequired,
+  async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      const userAccessRole = req.user.role;
+      await userIdJoiSchema.validateAsync({ userId });
+      const user = await userService.getUserById(userId);
+      if (!user) {
+        throw new Error("해당 아이디의 유저는 존재하지 않습니다.");
+      }
+      const { role } = user;
+      if (role === "admin" && userAccessRole === "admin") {
+        throw new Error("관리자 권한으로 관리자 계정을 삭제할 수 없습니다.");
+      }
+      const result = await userService.deleteUser(userId);
+      res.json({ result });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 module.exports = userRouter;

@@ -31,5 +31,9 @@ class UserModel {
     const createdNewUser = await User.create(userInfo);
     return createdNewUser;
   }
+  async deleteUser(userId) {
+    const deletedUser = await User.findOneAndDelete({ _id: userId });
+    return deletedUser;
+  }
 }
 module.exports = UserModel;
