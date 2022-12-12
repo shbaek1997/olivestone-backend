@@ -12,20 +12,44 @@ class UserService {
     return user;
   }
 
-  //get user by username
-  async getUserByUsername(username) {
-    const user = await this.userModel.findByUsername(username);
+  //get user by email
+  async getUserByEmail(email) {
+    const user = await this.userModel.findByEmail(email);
     return user;
+  }
+
+  //get all basic-users
+  async getBasicUsers() {
+    const users = await this.userModel.findBasicUsers();
+    return users;
+  }
+  // get all users
+  async getAllUsers() {
+    const users = await this.userModel.findAllUsers();
+    return users;
   }
 
   //create new user
   async createNewUser(userInfo) {
-    const { username, password } = userInfo;
+    const { email, password, fullname } = userInfo;
     const salt = 10;
     const hashedPassword = await bcrypt.hash(password, salt);
-    const newUserInfo = { username, password: hashedPassword };
+    const newUserInfo = { email, fullname, password: hashedPassword };
     const createdNewUser = await this.userModel.createUser(newUserInfo);
     return createdNewUser;
+  }
+  async deleteUser(userId) {
+    const result = await this.userModel.deleteUser(userId);
+    return result;
+  }
+  async updateUserRole(userInfo) {
+    const userId = userInfo._id;
+    const currentRole = userInfo.role;
+    const isUserAdmin = currentRole === "admin";
+    const newRole = isUserAdmin ? "basic-user" : "admin";
+    console.log("test", userId, newRole);
+    const updatedUser = await this.userModel.updateUserRole(userId, newRole);
+    return updatedUser;
   }
 }
 const userService = new UserService(userModel);

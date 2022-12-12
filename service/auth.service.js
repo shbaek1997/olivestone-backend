@@ -11,19 +11,18 @@ const { userService } = require("./user.service");
 // set up passport-local
 // passport-local: username, password field configure
 const passportConfig = {
-  usernameField: "username",
+  usernameField: "email",
   passwordField: "password",
 };
 //specify passport-local strategy
-const passportVerify = async (username, password, done) => {
+const passportVerify = async (email, password, done) => {
   try {
     //find user by username
-    const user = await userService.getUserByUsername(username);
+    const user = await userService.getUserByEmail(email);
     // no user means no user with the provided username
     if (!user) {
       done(null, false, {
-        message:
-          "해당 username은 가입 내역이 없습니다. 다시 한 번 확인해 주세요.",
+        message: "해당 email은 가입 내역이 없습니다. 다시 한 번 확인해 주세요.",
       });
       return;
     }
