@@ -35,5 +35,13 @@ class UserModel {
     const deletedUser = await User.findOneAndDelete({ _id: userId });
     return deletedUser;
   }
+  async updateUserRole(userId, newRole) {
+    const filter = { _id: userId };
+    const update = { role: newRole };
+    const updatedUser = await User.findOneAndUpdate(filter, update, {
+      returnOriginal: false,
+    });
+    return updatedUser;
+  }
 }
 module.exports = UserModel;

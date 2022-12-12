@@ -167,4 +167,29 @@ userRouter.delete(
   }
 );
 
+userRouter.patch(
+  "/role/:userId",
+  loginRequired,
+  superUserRequired,
+  async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      console.log("hihi", userId);
+      await userIdJoiSchema.validateAsync({ userId });
+      const user = await userService.getUserById(userId);
+      if (!user) {
+        throw new Error("해당 아이디의 유저는 존재하지 않습니다.");
+      }
+      const userInfo = user;
+      console.log(userInfo);
+      //update user role based userInfo
+      const updatedUser = await userService.updateUserRole(userInfo);
+      console.log(updatedUser);
+      res.json({ updatedUser });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 module.exports = userRouter;

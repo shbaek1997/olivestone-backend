@@ -42,6 +42,15 @@ class UserService {
     const result = await this.userModel.deleteUser(userId);
     return result;
   }
+  async updateUserRole(userInfo) {
+    const userId = userInfo._id;
+    const currentRole = userInfo.role;
+    const isUserAdmin = currentRole === "admin";
+    const newRole = isUserAdmin ? "basic-user" : "admin";
+    console.log("test", userId, newRole);
+    const updatedUser = await this.userModel.updateUserRole(userId, newRole);
+    return updatedUser;
+  }
 }
 const userService = new UserService(userModel);
 module.exports = { userService };
