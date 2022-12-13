@@ -43,5 +43,13 @@ class UserModel {
     });
     return updatedUser;
   }
+  async updateUserEmailValidation(email) {
+    const filter = { email };
+    const update = { emailVerified: true };
+    const updatedUser = await User.findOneAndUpdate(filter, update, {
+      returnOriginal: false,
+    });
+    return updatedUser;
+  }
 }
 module.exports = UserModel;
