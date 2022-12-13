@@ -21,6 +21,11 @@ const UserSchema = new Schema(
       required: false,
       default: "basic-user",
     },
+    emailVerified: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
   {
     collection: "users",
