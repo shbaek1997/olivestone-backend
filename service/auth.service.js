@@ -34,6 +34,13 @@ const passportVerify = async (email, password, done) => {
       });
       return;
     }
+    const { emailVerified } = user;
+    if (!emailVerified) {
+      done(null, false, {
+        message: "이메일 인증이 되어있지 않습니다. 이메일 인증을 해주세요!",
+      });
+      return;
+    }
     // if all passed
     done(null, user); // return user in done call back
     return;
