@@ -196,8 +196,12 @@ userRouter.get("/verify", async (req, res, next) => {
     const { email, expireDate } = payload;
     //if expire date expired.. -send new token and alert user (front end bit, make validation page)
     const timeNow = new Date();
-    if (timeNow > expireDate) {
-      throw new Error("인증 이메일의 유효기간이 만료되었습니다.");
+    const expireDateObj = new Date(expireDate);
+    if (timeNow > expireDateObj) {
+      sendValidationMail(email);
+      throw new Error(
+        "인증 이메일의 유효기간이 만료되어 새 인증메일을 발송했습니다."
+      );
     }
     const user = await userService.getUserByEmail(email);
     if (!user) {
