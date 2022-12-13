@@ -51,6 +51,11 @@ class UserService {
     const updatedUser = await this.userModel.updateUserRole(userId, newRole);
     return updatedUser;
   }
+  async updateUserEmailValidation(userInfo) {
+    const { email } = userInfo;
+    const updatedUser = await this.userModel.updateUserEmailValidation(email);
+    return updatedUser;
+  }
 }
 const userService = new UserService(userModel);
 module.exports = { userService };
