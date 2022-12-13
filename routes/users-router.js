@@ -14,6 +14,7 @@ const {
   userIdJoiSchema,
 } = require("../db/schema/joi-schema/user.joi.schema");
 const { superUserRequired } = require("../middleware/super-user-required");
+const sendValidationMail = require("../service/email.service");
 
 // get request with passport middleware to check if user is logged in
 userRouter.get("/auth", loginRequired, (req, res, next) => {
@@ -66,6 +67,7 @@ userRouter.post(
       //then create new user
       const { body } = req;
       const { email, fullname, password, passwordRepeat } = body;
+
       const existingUser = await userService.getUserByEmail(email);
       if (existingUser) {
         throw new Error(
@@ -86,6 +88,26 @@ userRouter.post(
         passwordRepeat,
       });
       res.json({ user: newUser });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+userRouter.post(
+  "/register/email",
+  loginRequired,
+  adminRequired,
+  async (req, res, next) => {
+    try {
+      const { body } = req;
+      const { email } = body;
+      const user = await userService.getUserByEmail(email);
+      if (!user) {
+        throw new Error("해당 이메일을 가진 유저가 없습니다.");
+      }
+      await sendValidationMail(email);
+      res.json({ result: "인증 이메일이 정상적으로 발송되었습니다." });
     } catch (error) {
       next(error);
     }
@@ -160,12 +182,39 @@ userRouter.delete(
         throw new Error("관리자 권한으로 관리자 계정을 삭제할 수 없습니다.");
       }
       const result = await userService.deleteUser(userId);
-      res.json({ result });
+      res.json({ user: result });
     } catch (error) {
       next(error);
     }
   }
 );
+
+userRouter.get("/verify", async (req, res, next) => {
+  try {
+    const { token } = req.query;
+    const payload = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const { email, expireDate } = payload;
+    //if expire date expired.. -send new token and alert user (front end bit, make validation page)
+    const timeNow = new Date();
+    if (timeNow > expireDate) {
+      throw new Error("인증 이메일의 유효기간이 만료되었습니다.");
+    }
+    const user = await userService.getUserByEmail(email);
+    if (!user) {
+      throw new Error("해당 유저의 가입기록이 없습니다.");
+    }
+    const { emailVerified } = user;
+    if (emailVerified) {
+      throw new Error("해당 유저는 이미 인증을 완료했습니다.");
+    }
+    const userInfo = user;
+    const updatedUser = await userService.updateUserEmailValidation(userInfo);
+
+    res.json({ user: updatedUser });
+  } catch (error) {
+    next(error);
+  }
+});
 
 userRouter.patch(
   "/role/:userId",
@@ -174,7 +223,6 @@ userRouter.patch(
   async (req, res, next) => {
     try {
       const { userId } = req.params;
-      console.log("hihi", userId);
       await userIdJoiSchema.validateAsync({ userId });
       const user = await userService.getUserById(userId);
       if (!user) {
