@@ -8,13 +8,14 @@ const jwt = require("jsonwebtoken");
 const { loginRequired } = require("../middleware/auth-jwt");
 const { adminRequired } = require("../middleware/admin-required");
 //user service
+const { emailService } = require("../service/email.service");
 const { userService } = require("../service/user.service");
 const {
   userRegisterJoiSchema,
   userIdJoiSchema,
+  userPasswordUpdateJoiSchema,
 } = require("../db/schema/joi-schema/user.joi.schema");
 const { superUserRequired } = require("../middleware/super-user-required");
-const sendValidationMail = require("../service/email.service");
 
 // get request with passport middleware to check if user is logged in
 userRouter.get("/auth", loginRequired, (req, res, next) => {
@@ -106,7 +107,7 @@ userRouter.post(
       if (!user) {
         throw new Error("해당 이메일을 가진 유저가 없습니다.");
       }
-      await sendValidationMail(email);
+      await emailService.sendValidationMail(email);
       res.json({ result: "인증 이메일이 정상적으로 발송되었습니다." });
     } catch (error) {
       next(error);
@@ -162,6 +163,46 @@ userRouter.post("/login", async (req, res, next) => {
     next(error);
   }
 });
+
+userRouter.post("/reset-password", async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await userService.getUserByEmail(email);
+    if (!user) {
+      throw new Error("해당 이메일의 유저는 존재하지 않습니다.");
+    }
+    const expireDate = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+    const payload = { user, expireDate };
+    const token = jwt.sign(payload, process.env.JWT_SECRET_KEY);
+    await emailService.sendPasswordResetEmail(email, token);
+    res.json({ result: "비밀번호 리셋 이메일이 정상적으로 발송되었습니다." });
+  } catch (error) {
+    next(error);
+  }
+});
+userRouter.get("/reset-password/check-token", async (req, res, next) => {
+  try {
+    const { token } = req.query;
+    const payload = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const { user, expireDate } = payload;
+    //if expire date expired.. -send new token and alert user (front end bit, make validation page)
+    const timeNow = new Date();
+    const expireDateObj = new Date(expireDate);
+    if (timeNow > expireDateObj) {
+      const newExpireDate = new Date(timeNow.getTime() + 24 * 60 * 60 * 1000);
+      const newPayload = { user, newExpireDate };
+      const { email } = user;
+      const newToken = jwt.sign(newPayload, process.env.JWT_SECRET_KEY);
+      await emailService.sendPasswordResetEmail(email, newToken);
+      throw new Error(
+        "리셋 이메일의 유효기간이 만료되어 새 인증메일을 발송했습니다."
+      );
+    }
+    res.json({ user });
+  } catch (error) {
+    next(error);
+  }
+});
 //user delete
 
 userRouter.delete(
@@ -198,7 +239,7 @@ userRouter.get("/verify", async (req, res, next) => {
     const timeNow = new Date();
     const expireDateObj = new Date(expireDate);
     if (timeNow > expireDateObj) {
-      sendValidationMail(email);
+      emailService.sendValidationMail(email);
       throw new Error(
         "인증 이메일의 유효기간이 만료되어 새 인증메일을 발송했습니다."
       );
@@ -214,6 +255,25 @@ userRouter.get("/verify", async (req, res, next) => {
     const userInfo = user;
     const updatedUser = await userService.updateUserEmailValidation(userInfo);
 
+    res.json({ user: updatedUser });
+  } catch (error) {
+    next(error);
+  }
+});
+userRouter.patch("/:userId/reset-password/password", async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { password, passwordRepeat } = req.body;
+    await userPasswordUpdateJoiSchema.validateAsync({
+      userId,
+      password,
+      passwordRepeat,
+    });
+    const user = await userService.getUserById(userId);
+    if (!user) {
+      throw new Error("해당 아이디의 유저는 존재하지 않습니다.");
+    }
+    const updatedUser = await userService.updateUserPassword(user, password);
     res.json({ user: updatedUser });
   } catch (error) {
     next(error);
