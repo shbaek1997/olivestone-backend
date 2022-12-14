@@ -51,5 +51,13 @@ class UserModel {
     });
     return updatedUser;
   }
+  async updateUserPassword(email, hashedPassword) {
+    const filter = { email };
+    const update = { password: hashedPassword };
+    const updatedUser = await User.findOneAndUpdate(filter, update, {
+      returnOriginal: false,
+    });
+    return updatedUser;
+  }
 }
 module.exports = UserModel;

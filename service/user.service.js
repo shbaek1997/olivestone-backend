@@ -56,6 +56,16 @@ class UserService {
     const updatedUser = await this.userModel.updateUserEmailValidation(email);
     return updatedUser;
   }
+  async updateUserPassword(userInfo, newPassword) {
+    const { email } = userInfo;
+    const salt = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    const updatedUser = await this.userModel.updateUserPassword(
+      email,
+      hashedPassword
+    );
+    return updatedUser;
+  }
 }
 const userService = new UserService(userModel);
 module.exports = { userService };
