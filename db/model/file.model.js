@@ -40,5 +40,11 @@ class FileModel {
     });
     return updatedFile;
   }
+  async updateUserFilesExpireDates(userEmail, expireDate) {
+    const filter = { uploaderEmail: userEmail };
+    const update = { expireDate };
+    const result = await File.updateMany(filter, update);
+    return result;
+  }
 }
 module.exports = FileModel;
