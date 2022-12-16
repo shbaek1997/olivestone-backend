@@ -9,6 +9,8 @@ const upload = require("../middleware/upload");
 const { fileService } = require("../service/file.service");
 // user authentication passport middleware
 const { loginRequired } = require("../middleware/auth-jwt");
+const { adminRequired } = require("../middleware/admin-required");
+const { userService } = require("../service/user.service");
 // time service for converting time to expire time in korea
 const timeService = require("../service/time.service");
 // Joi schemas for data validation
@@ -48,7 +50,7 @@ filesRouter.patch(
       const { fileId } = req.params;
       //validate file Id format
       await fileIdJoiSchema.validateAsync({ fileId });
-      timeNow = new Date();
+      const timeNow = new Date();
       const validPeriod = 0;
       //expire date is today
       const expireDate = timeService.timeToExpireTimeInKorea(
@@ -66,6 +68,36 @@ filesRouter.patch(
       // Delete file from the directory
       fileService.checkFiles();
       res.json(updatedFile);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+// delete all files from one uploader - patch expire date to now to expire it
+filesRouter.patch(
+  "/:userId",
+  loginRequired,
+  adminRequired,
+  async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      const userFound = await userService.getUserById(userId);
+      if (!userFound) {
+        throw new Error("해당 유저는 존재하지 않습니다.");
+      }
+      const { email } = userFound;
+      const timeNow = new Date();
+      const validPeriod = 0;
+      const expireDate = timeService.timeToExpireTimeInKorea(
+        timeNow,
+        validPeriod
+      );
+      const result = await fileService.updateUserFilesExpireDates(
+        email,
+        expireDate
+      );
+      fileService.checkFiles();
+      res.json({ userFound, result });
     } catch (error) {
       next(error);
     }
@@ -120,6 +152,7 @@ filesRouter.post(
       if (!file) {
         throw new Error("파일은 반드시 입력해야 합니다.");
       }
+      const { email } = req.user;
       // file password and validPeriod from req form body
       const { password, validPeriod } = req.body;
       //destructure file
@@ -129,6 +162,7 @@ filesRouter.post(
         timeNow,
         validPeriod
       );
+      const uploaderEmail = email;
 
       const fileInfo = {
         originalname,
@@ -138,6 +172,7 @@ filesRouter.post(
         path,
         validPeriod,
         expireDate,
+        uploaderEmail,
       };
       // save new file
       const savedFile = await fileService.saveFile(fileInfo);
