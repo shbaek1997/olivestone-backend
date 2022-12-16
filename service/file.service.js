@@ -34,6 +34,13 @@ class FileService {
     );
     return updatedFile;
   }
+  async updateUserFilesExpireDates(userEmail, expireDate) {
+    const result = await this.fileModel.updateUserFilesExpireDates(
+      userEmail,
+      expireDate
+    );
+    return result;
+  }
 
   //find one file with file id, then hash password and update the file with a new password
   async updateFilePassword(fileInfo) {
@@ -57,6 +64,7 @@ class FileService {
       path,
       validPeriod,
       expireDate,
+      uploaderEmail,
     } = fileInfo;
     //decode korean names back to korean when upload
     const originalName = iconvLite.decode(originalname, "UTF-8");
@@ -74,6 +82,7 @@ class FileService {
       mimeType: mimetype,
       validPeriod,
       expireDate,
+      uploaderEmail,
     };
     const savedFile = await this.fileModel.createFile(newFileInfo);
     return savedFile;
