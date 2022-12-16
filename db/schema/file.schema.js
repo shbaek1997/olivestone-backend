@@ -32,6 +32,10 @@ const FileSchema = new Schema(
       type: Date,
       required: true,
     },
+    uploaderEmail: {
+      type: String,
+      required: true,
+    },
   },
   {
     collection: "files",
