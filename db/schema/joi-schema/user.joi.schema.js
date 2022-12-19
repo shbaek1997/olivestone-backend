@@ -7,7 +7,7 @@ const userRegisterJoiSchema = joi.object({
     "string.email": "email이 올바른 형식이 아닙니다.",
   }),
   fullname: joi.string().required().min(2).messages({
-    "string.empty": "아름이 비어있습니다.",
+    "string.empty": "이름이 비어있습니다.",
     "any.required": "이름은 반드시 입력되어야 합니다.",
     "string.min": "이름은 최소 2글자 이상이어야 합니다.",
   }),
@@ -34,7 +34,7 @@ const userIdJoiSchema = joi.object({
     }),
 });
 
-const userPasswordUpdateJoiSchema = joi.object({
+const userPasswordResetJoiSchema = joi.object({
   userId: joi
     .string()
     .required()
@@ -54,8 +54,44 @@ const userPasswordUpdateJoiSchema = joi.object({
   }),
 });
 
+const userPasswordUpdateJoiSchema = joi.object({
+  newPassword: joi.string().required().min(8).messages({
+    "string.empty": "비밀번호가 비어있습니다.",
+    "any.required": "비밀번호는 반드시 입력되어야 합니다.",
+    "string.min": "비밀번호는 최소 8글자 이상이어야 합니다.",
+  }),
+  newPasswordRepeat: joi
+    .any()
+    .equal(joi.ref("newPassword"))
+    .required()
+    .messages({
+      "any.only": "비밀번호와 비밀번호 확인이 일치하지 않습니다.",
+    }),
+  oldPassword: joi
+    .string()
+    .invalid(joi.ref("newPassword"))
+    .required()
+    .messages({
+      "any.invalid": "새 비밀번호와 현재 비밀번호는 같을 수 없습니다.",
+    }),
+});
+const userNameUpdateJoiSchema = joi.object({
+  name: joi.string().required().min(2).messages({
+    "string.empty": "이름이 비어있습니다.",
+    "any.required": "이름은 반드시 입력되어야 합니다.",
+    "string.min": "이름은 최소 2글자 이상이어야 합니다.",
+  }),
+  password: joi.string().required().min(8).messages({
+    "string.empty": "비밀번호가 비어있습니다.",
+    "any.required": "비밀번호는 반드시 입력되어야 합니다.",
+    "string.min": "비밀번호는 최소 8글자 이상이어야 합니다.",
+  }),
+});
+
 module.exports = {
   userRegisterJoiSchema,
   userIdJoiSchema,
+  userPasswordResetJoiSchema,
   userPasswordUpdateJoiSchema,
+  userNameUpdateJoiSchema,
 };
