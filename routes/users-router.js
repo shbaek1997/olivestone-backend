@@ -10,10 +10,13 @@ const { adminRequired } = require("../middleware/admin-required");
 //user service
 const { emailService } = require("../service/email.service");
 const { userService } = require("../service/user.service");
+const bcrypt = require("bcrypt");
 const {
   userRegisterJoiSchema,
   userIdJoiSchema,
+  userPasswordResetJoiSchema,
   userPasswordUpdateJoiSchema,
+  userNameUpdateJoiSchema,
 } = require("../db/schema/joi-schema/user.joi.schema");
 const { superUserRequired } = require("../middleware/super-user-required");
 
@@ -264,7 +267,7 @@ userRouter.patch("/:userId/reset-password/password", async (req, res, next) => {
   try {
     const { userId } = req.params;
     const { password, passwordRepeat } = req.body;
-    await userPasswordUpdateJoiSchema.validateAsync({
+    await userPasswordResetJoiSchema.validateAsync({
       userId,
       password,
       passwordRepeat,
@@ -279,6 +282,81 @@ userRouter.patch("/:userId/reset-password/password", async (req, res, next) => {
     next(error);
   }
 });
+userRouter.patch(
+  "/:userId/change-name",
+  loginRequired,
+  async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      const user = await userService.getUserById(userId);
+      if (!user) {
+        throw new Error("해당 아이디의 유저는 존재하지 않습니다.");
+      }
+      const isUserMatch = userId === String(user._id);
+      if (!isUserMatch) {
+        throw new Error(
+          "현재 로그인한 유저와 api 유저 아이디가 일치하지 않습니다."
+        );
+      }
+      const hashedPassword = user.password;
+      const { name, password } = req.body;
+      //joi schema
+      const isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
+      if (!isPasswordCorrect) {
+        throw new Error("현재 비밀번호가 틀렸습니다.");
+      }
+      await userNameUpdateJoiSchema.validateAsync({
+        name,
+        password,
+      });
+      const updatedUser = await userService.updateUserName(user, name);
+      res.json({ user: updatedUser });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+userRouter.patch(
+  "/:userId/change-password",
+  loginRequired,
+  async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      const user = await userService.getUserById(userId);
+      if (!user) {
+        throw new Error("해당 아이디의 유저는 존재하지 않습니다.");
+      }
+      const { password } = user;
+
+      const isUserMatch = userId === String(user._id);
+      if (!isUserMatch) {
+        throw new Error(
+          "현재 로그인한 유저와 api 유저 아이디가 일치하지 않습니다."
+        );
+      }
+      const { newPassword, newPasswordRepeat, oldPassword } = req.body;
+      //joi schema
+      const isPasswordCorrect = await bcrypt.compare(oldPassword, password);
+      if (!isPasswordCorrect) {
+        throw new Error("현재 비밀번호가 틀렸습니다.");
+      }
+      await userPasswordUpdateJoiSchema.validateAsync({
+        newPassword,
+        newPasswordRepeat,
+        oldPassword,
+      });
+
+      const updatedUser = await userService.updateUserPassword(
+        user,
+        newPassword
+      );
+      res.json({ user: updatedUser });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 userRouter.patch(
   "/role/:userId",

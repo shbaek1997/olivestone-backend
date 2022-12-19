@@ -66,6 +66,11 @@ class UserService {
     );
     return updatedUser;
   }
+  async updateUserName(userInfo, newName) {
+    const { email } = userInfo;
+    const updatedUser = await this.userModel.updateUserName(email, newName);
+    return updatedUser;
+  }
 }
 const userService = new UserService(userModel);
 module.exports = { userService };
