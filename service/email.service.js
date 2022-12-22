@@ -20,8 +20,8 @@ class EmailService {
     const mailOptions = {
       from: `"Upload Download OliveStone" <${process.env.MAIL_ID}>`,
       to: email,
-      subject: "Verification Email",
-      html: `<p>Please click the link below to verify your email address:</p>
+      subject: "인증 요청 이메일",
+      html: `<p>아래의 링크를 클릭하여 이메일을 인증해 주세요.</p>
       <a href="${process.env.HOME_PAGE}/verify?token=${token}">${process.env.HOME_PAGE}/verify?token=${token}</a>`,
     };
     const sentMailInfo = await this.transporter.sendMail(mailOptions);
@@ -32,8 +32,8 @@ class EmailService {
     const mailOptions = {
       from: `"Upload Download OliveStone" <${process.env.MAIL_ID}>`,
       to: email,
-      subject: "Password Reset",
-      html: `<p>Follow this link below to reset your password</p>
+      subject: "비밀번호 재설정",
+      html: `<p>아래의 링크를 클릭하여 비밀번호를 재설정하세요</p>
       <a href="${process.env.HOME_PAGE}/reset-password?token=${passwordResetToken}">${process.env.HOME_PAGE}/reset-password?token=${passwordResetToken}</a>`,
     };
     const sentMailInfo = await this.transporter.sendMail(mailOptions);
