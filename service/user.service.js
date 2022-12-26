@@ -38,10 +38,12 @@ class UserService {
     const createdNewUser = await this.userModel.createUser(newUserInfo);
     return createdNewUser;
   }
+  //delete user
   async deleteUser(userId) {
     const result = await this.userModel.deleteUser(userId);
     return result;
   }
+  //update a user's role (admin <=> basic-user)
   async updateUserRole(userInfo) {
     const userId = userInfo._id;
     const currentRole = userInfo.role;
@@ -51,11 +53,13 @@ class UserService {
     const updatedUser = await this.userModel.updateUserRole(userId, newRole);
     return updatedUser;
   }
+  //update user's email verification status
   async updateUserEmailValidation(userInfo) {
     const { email } = userInfo;
     const updatedUser = await this.userModel.updateUserEmailValidation(email);
     return updatedUser;
   }
+  //update user's password with the new password
   async updateUserPassword(userInfo, newPassword) {
     const { email } = userInfo;
     const salt = 10;
@@ -66,6 +70,7 @@ class UserService {
     );
     return updatedUser;
   }
+  //update user's name
   async updateUserName(userInfo, newName) {
     const { email } = userInfo;
     const updatedUser = await this.userModel.updateUserName(email, newName);

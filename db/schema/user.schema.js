@@ -1,7 +1,7 @@
 //Define user schema
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-//user has username, password, role (not used for now)
+//email as primary key
 const UserSchema = new Schema(
   {
     email: {

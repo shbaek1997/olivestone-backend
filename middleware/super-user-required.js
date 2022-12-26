@@ -1,3 +1,4 @@
+//middleware which check is the logged in user's role is super-user
 const superUserRequired = (req, res, next) => {
   const role = req.user.role;
   if (role === "super-user") {

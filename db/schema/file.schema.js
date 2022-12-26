@@ -1,7 +1,6 @@
 //Define file schema
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-//file has id, original file name, file password, directory path, mime type, valid period in days, expire date
 const FileSchema = new Schema(
   {
     _id: {
@@ -29,7 +28,7 @@ const FileSchema = new Schema(
       required: true,
     },
     expireDate: {
-      type: Date,
+      type: Date, //exact date at midnight
       required: true,
     },
     uploaderEmail: {

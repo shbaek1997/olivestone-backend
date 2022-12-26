@@ -1,3 +1,4 @@
+//check if logged in user's role is admin or above
 const adminRequired = (req, res, next) => {
   const role = req.user.role;
   if (role === "admin" || role === "super-user") {

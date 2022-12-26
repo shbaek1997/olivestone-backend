@@ -34,9 +34,10 @@ const checkFunction = (req, file, callback) => {
   //joi schema.validate return object with error if validation fails
   const error = result.error;
   const checkValid = !error ? true : false;
-  //req 에 에러관련 내용을 붙여서 라우터에서 확인
+  //add error info to req object
   req.error = error;
-  //checkValid 가 true이면 파일이 accept되고, false이면 reject된다.
+  //checkValid true => file is accepted
+  // check valid false => file is rejected
   callback(null, checkValid);
 };
 const upload = multer({

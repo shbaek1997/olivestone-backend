@@ -1,19 +1,12 @@
-//Router
 const express = require("express");
 const filesRouter = express.Router();
-// Hash password
 const bcrypt = require("bcrypt");
-//multer upload middleware
 const upload = require("../middleware/upload");
-//file service
 const { fileService } = require("../service/file.service");
-// user authentication passport middleware
 const { loginRequired } = require("../middleware/auth-jwt");
 const { adminRequired } = require("../middleware/admin-required");
 const { userService } = require("../service/user.service");
-// time service for converting time to expire time in korea
 const timeService = require("../service/time.service");
-// Joi schemas for data validation
 const {
   fileDownloadJoiSchema,
   fileIdJoiSchema,
@@ -23,6 +16,7 @@ const {
 // Router to get all files (not expired)
 filesRouter.get("/all", loginRequired, async (req, res, next) => {
   try {
+    //get all files
     const files = await fileService.getAllFiles();
     //filtering valid files(not expired files)
     let validFiles = [];
@@ -30,18 +24,18 @@ filesRouter.get("/all", loginRequired, async (req, res, next) => {
       const isExpired = await fileService.isExpired(file._id);
       //if file is not expired
       if (!isExpired) {
-        //add file to array
+        //add file to the array
         validFiles.push(file);
       }
     }
-    // return filtered files
+    // return filtered files array
     res.json({ files: validFiles });
   } catch (error) {
     next(error);
   }
 });
 
-//update file expiration date to today and delete file from directory (make file expired)
+//update file expiration date to today and delete file from the directory (make file expired)
 filesRouter.patch(
   "/expireDate/:fileId",
   loginRequired,
@@ -65,7 +59,7 @@ filesRouter.patch(
       //Expire file
       const fileInfo = { fileId, expireDate };
       const updatedFile = await fileService.updateFileExpireDate(fileInfo);
-      // Delete file from the directory
+      // Delete the file from the directory using check files method
       fileService.checkFiles();
       res.json(updatedFile);
     } catch (error) {
@@ -73,7 +67,7 @@ filesRouter.patch(
     }
   }
 );
-// delete all files from one uploader - patch expire date to now to expire it
+// delete all files from one uploader - patch expire date of files to now to expire them
 filesRouter.patch(
   "/:userId",
   loginRequired,
@@ -81,21 +75,26 @@ filesRouter.patch(
   async (req, res, next) => {
     try {
       const { userId } = req.params;
+      //get user
       const userFound = await userService.getUserById(userId);
       if (!userFound) {
         throw new Error("해당 유저는 존재하지 않습니다.");
       }
+      //user email
       const { email } = userFound;
+      //set expire date to today
       const timeNow = new Date();
       const validPeriod = 0;
       const expireDate = timeService.timeToExpireTimeInKorea(
         timeNow,
         validPeriod
       );
+      //update all files found for one user and update expire date for all files found
       const result = await fileService.updateUserFilesExpireDates(
         email,
         expireDate
       );
+      //delete files from the directory using check files method
       fileService.checkFiles();
       res.json({ userFound, result });
     } catch (error) {
@@ -158,12 +157,13 @@ filesRouter.post(
       //destructure file
       const { originalname, mimetype, path, filename } = file;
       const timeNow = new Date();
+      //set expire date
       const expireDate = timeService.timeToExpireTimeInKorea(
         timeNow,
         validPeriod
       );
       const uploaderEmail = email;
-
+      //uploaded file info
       const fileInfo = {
         originalname,
         password,
@@ -222,7 +222,7 @@ filesRouter.post("/download/", async (req, res, next) => {
 //curl command
 //curl -X POST http://localhost:5000/files/download -H "Content-Type: application/json" -d '{"fileId":"636a08dcac8468e52ce5481f","plainPassword":"12345678"}' --output filename
 
-//download a single file
+//download a single file (without entering file password for logged in users)
 filesRouter.get("/download/:fileId", loginRequired, async (req, res, next) => {
   try {
     const { fileId } = req.params;

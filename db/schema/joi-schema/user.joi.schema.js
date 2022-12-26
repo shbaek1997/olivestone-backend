@@ -1,5 +1,5 @@
 const joi = require("joi");
-//check file upload - file password, password repeat, valid period
+//check user sign up form submission
 const userRegisterJoiSchema = joi.object({
   email: joi.string().required().email().messages({
     "string.empty": " email이 비어있습니다.",
@@ -19,9 +19,8 @@ const userRegisterJoiSchema = joi.object({
   passwordRepeat: joi.any().equal(joi.ref("password")).required().messages({
     "any.only": "비밀번호와 비밀번호 확인이 일치하지 않습니다.",
   }),
-  //관리자로 유저 추가가 필요하면 나중에 추가..
 });
-
+//check user id format (mongo db id)
 const userIdJoiSchema = joi.object({
   userId: joi
     .string()
@@ -33,7 +32,7 @@ const userIdJoiSchema = joi.object({
       "string.pattern.base": "유저 아이디 형식이 올바르지 않습니다.",
     }),
 });
-
+// check user password reset submission
 const userPasswordResetJoiSchema = joi.object({
   userId: joi
     .string()
@@ -53,7 +52,7 @@ const userPasswordResetJoiSchema = joi.object({
     "any.only": "비밀번호와 비밀번호 확인이 일치하지 않습니다.",
   }),
 });
-
+// check user password update
 const userPasswordUpdateJoiSchema = joi.object({
   newPassword: joi.string().required().min(8).messages({
     "string.empty": "비밀번호가 비어있습니다.",
@@ -75,6 +74,7 @@ const userPasswordUpdateJoiSchema = joi.object({
       "any.invalid": "새 비밀번호와 현재 비밀번호는 같을 수 없습니다.",
     }),
 });
+// check user name update
 const userNameUpdateJoiSchema = joi.object({
   name: joi.string().required().min(2).messages({
     "string.empty": "이름이 비어있습니다.",

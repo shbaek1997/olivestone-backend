@@ -17,9 +17,9 @@ const passportConfig = {
 //specify passport-local strategy
 const passportVerify = async (email, password, done) => {
   try {
-    //find user by username
+    //find user by email
     const user = await userService.getUserByEmail(email);
-    // no user means no user with the provided username
+    // no user means no user with the provided email
     if (!user) {
       done(null, false, {
         message: "해당 email은 가입 내역이 없습니다. 다시 한 번 확인해 주세요.",
@@ -34,6 +34,7 @@ const passportVerify = async (email, password, done) => {
       });
       return;
     }
+    //check email verification status
     const { emailVerified } = user;
     if (!emailVerified) {
       done(null, false, {

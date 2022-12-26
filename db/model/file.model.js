@@ -40,6 +40,7 @@ class FileModel {
     });
     return updatedFile;
   }
+  //find all files uploaded by a user using user email, and expire all files uploaded by that particular user
   async updateUserFilesExpireDates(userEmail, expireDate) {
     const filter = { uploaderEmail: userEmail };
     const update = { expireDate };

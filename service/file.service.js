@@ -34,6 +34,7 @@ class FileService {
     );
     return updatedFile;
   }
+  // update expire dates of all files of one user
   async updateUserFilesExpireDates(userEmail, expireDate) {
     const result = await this.fileModel.updateUserFilesExpireDates(
       userEmail,
@@ -42,7 +43,7 @@ class FileService {
     return result;
   }
 
-  //find one file with file id, then hash password and update the file with a new password
+  //find one file with file id, then hash password and update the file with the new password
   async updateFilePassword(fileInfo) {
     const { fileId, filePassword } = fileInfo;
     const salt = 10;
