@@ -20,7 +20,7 @@
   - 예를 들어서, 23시 25분에 파일 A의 유효기간을 하루로 설정하면 그 날 24시 00분 (다음날 00시00분)에 파일이 만료되면서 디렉토리의 파일이 삭제됨
 - 파일의 유효 기간이 끝나서 디렉토리에서 파일이 삭제가 되어도, 파일 정보가 DB에서 삭제가 되지는 않음
 - 따라서 클라이언트에서 파일 삭제 버튼을 눌러도, 이때의 삭제 개념은 디렉토리의 파일 삭제와 DB의 파일 만료가 동시에 일어남
--
+- 파일의 유효기간은 app.js 파일의 setInterval 기능으로 서버가 켜져있는 상태에서 서버 시작할 때와 정한 시간(현재는 1시간) 단위 마다 디렉토리의 파일들의 정보를 확인하는 과정을 통하여 파일을 삭제함.
 
 ## 기술 스텍
 
@@ -63,4 +63,4 @@
   - 업로드 시, Body는 Form Data로 설정하고, key/value 쌍 중 file을 가장 마지막으로 form에 등록해야 함
 - API response가 정상이라면, MongoDB의 Collection이 정상적으로 업데이트 되었나 확인
 - 클라이언트를 실행하므로써 간편하게 API의 동작여부 확인 가능
-- 터미널로 파일 다운로드 시,`curl -X POST http://localhost:5000/files/download -H "Content-Type: application/json" -d '{"fileId":"MongoDBFileId","plainPassword":"FilePassword"}' --output downloadFileName` 으로 현재 디렉토리에 다운로드 가능
+- 터미널로 파일 다운로드 시,`curl -X POST http://localhost:5000/api/files/download -H "Content-Type: application/json" -d '{"fileId":"MongoDBFileId","plainPassword":"FilePassword"}' -O -J` 으로 현재 디렉토리에 다운로드 가능
